@@ -1,0 +1,5 @@
+Login/Signup
+Url Shortener
+Random generators: number, name, word, password, website
+Social Media
+APIs: weather, flights

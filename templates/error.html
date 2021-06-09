@@ -1,0 +1,13 @@
+<html>
+  <body>
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='error.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <center>
+      <title>VulcanwM Error</title>
+      <h2><a href="/">Home</a></h2>
+      <p class="error">{{error}}</p>
+    </center>
+  </body>
+</html>
