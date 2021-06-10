@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc
 import os
 app = Flask(__name__,
             static_url_path='', 
@@ -97,3 +97,26 @@ def profile(username):
     return render_template("error.html", error=f"{username} isn't a user!")
   else:
     return render_template("profile.html", user=getuser(username))
+
+@app.route("/adddesc")
+def adddescpage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  else:
+    desc = getuser(getcookie("User"))['Description']
+    if desc == None:
+      desc = ""
+    return render_template("adddesc.html", desc=desc)
+
+@app.route("/adddesc", methods=['POST', 'GET'])
+def adddescfunc():
+  if request.method == 'POST':
+    if getcookie("User") != False:
+      desc = request.form['desc']
+      func = adddesc(getcookie("User"), desc)
+      if func == True:
+        return redirect(f"/profile/{getcookie('User')}")
+      else:
+        return render_template("error.html", error=func)
+    else:
+      return render_template("error.html", error="You have already logged in!")

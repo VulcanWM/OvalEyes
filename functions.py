@@ -133,13 +133,20 @@ def send_mail(usermail, username, id):
       gmail_server.login(sendermail, password)
       message["From"] = sendermail
       message["To"] = usermail
-    except Exception as e:
-      return "Verification email not sent, due to some issues."
-      gmail_server.quit()
-      quit()
-    try:
       gmail_server.sendmail(sendermail, usermail, message.as_string())
       return True
     except Exception as e:
       return "Verification email not sent, due to some issues."
       gmail_server.quit()
+
+def adddesc(username, desc):
+  try: 
+    user = getuser(username)
+    del user['Description']
+    user['Description'] = desc
+    delete = {"Username": username}
+    profilescol.delete_one(delete)
+    profilescol.insert_many([user])
+    return True
+  except Exception as e: 
+    return e
