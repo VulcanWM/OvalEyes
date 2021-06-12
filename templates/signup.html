@@ -17,10 +17,10 @@
             <div class="login-form-form">
               <h2>Signup</h2>
               <form method="POST" action="{{ url_for('signup') }}">
-                <input class="login-form-input" placeholder="username" name="username">
-                <input class="login-form-input" placeholder="password" type="password" name="password">
-                <input class="login-form-input" placeholder="email" type="email" name="email">
-                <input class="login-form-input" placeholder="confirm password" type="password" name="passwordagain"><br>
+                <input class="login-form-input" placeholder="username" name="username" required>
+                <input class="login-form-input" placeholder="password" type="password" name="password" required>
+                <input class="login-form-input" placeholder="email" type="email" name="email" required>
+                <input class="login-form-input" placeholder="confirm password" type="password" name="passwordagain" required><br>
                 <button class="login-form-button">signup</button>
               </form>
             </div>

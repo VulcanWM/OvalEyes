@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <title>VulcanWM - {{post['Title']}}</title>
+  </head>
+    <body>
+      <h2><a href="/">Home</a></h2>
+      <h1>{{post['Title']}}</h1> 
+      <br>
+      <p>{{post['Description']}}</p>
+      <br>
+      <h4>By <a href="/profile/{{post['Author']}}">{{post['Author']}}</a></h4>
+      <h4>Created on: {{post['Created']}}</h4>
+      <h4>Likes: {{post['Likes']}}</h4>
+      <h4>View: {{post['Views']}}</h4>
+    </body>
+</html>

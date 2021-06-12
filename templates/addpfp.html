@@ -6,7 +6,7 @@
   <title>VulcanWM - Add Profile Pic</title>
   <h1>Add Profile Pic</h1>
   <form method="POST" action="{{ url_for('addpfp') }}" enctype="multipart/form-data">
-    <input type="file" name="image" id="image">
+    <input type="file" name="image" id="image" required>
     <button>submit</button>
   </form>
 </body>

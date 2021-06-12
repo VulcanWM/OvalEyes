@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid
 import os
 app = Flask(__name__,
             static_url_path='', 
@@ -220,3 +220,34 @@ def clearnotifsapp():
     return redirect("/")
   clearnotifs(getcookie("User"))
   return redirect("/notifs")
+
+@app.route("/makepost")
+def makepostpage():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    return render_template("makepost.html")
+
+@app.route("/makepost", methods=['GET', 'POST'])
+def makepostfunc():
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("login.html")
+    else:
+      username = getcookie("User")
+      title = request.form['title']
+      desc = request.form['desc']
+      if getpost(desc) != False:
+        return render_template("error.html", error="You already have a post with the same description!")
+      if len(desc) > 300:
+        return render_template("error.html", error="You cannot have more than 300 letters!")
+      makepost(username, title, desc)
+      theid = str(getpost(desc)['_id'])
+      return redirect(f"/post/{theid}")
+
+@app.route("/post/<theid>")
+def post(theid):
+  if getpostid(int(theid)) == False:
+    return render_template("error.html", "This post doesn't exist!")
+  post = getpostid(int(theid))
+  return render_template("post.html", post=post)

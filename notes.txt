@@ -1,10 +1,16 @@
 Url Shortener
-Random generators: number, name, word, password, website
-Make Posts
-See Posts
+Random number generator
+Random name generator
+Random word generator
+Rander password generator
+Ramdom website generator
 Like Posts
+Unlike Posts
 Share Posts
 Delete Posts
+Post Views
 Hot/Top/New Posts
+Comment
 Report
-APIs: weather, flights
+Weather API
+Flights API

@@ -13,7 +13,8 @@ client = pymongo.MongoClient(os.getenv("clientm"))
 usersdb = client.Users
 profilescol = usersdb.Profiles
 notifscol = usersdb.Notifications
-
+postsdb = client.Posts
+postscol = postsdb.Posts
 def addcookie(key, value):
   session[key] = value
 
@@ -228,3 +229,32 @@ def allseen(username):
   newvalues = { "$set": { "Seen": True } }
   notifscol.update_many(myquery, newvalues)
   return True
+
+def getpost(desc):
+  myquery = { "Description": desc }
+  mydoc = postscol.find(myquery)
+  for x in mydoc:
+    return x
+  return False
+
+def getpostid(id):
+  myquery = { "_id": int(id) }
+  mydoc = postscol.find(myquery)
+  for x in mydoc:
+    return x
+  return False
+
+def makepost(username, title, desc):
+  id = random_with_N_digits(10)
+  while getuserid(int(id)) == True:
+    id = random_with_N_digits(10)
+  document = [{
+    "_id": id,
+    "Author": username,
+    "Title": title,
+    "Description": desc,
+    "Likes": 0,
+    "Views": 0,
+    "Created": str(datetime.datetime.now())
+  }]
+  postscol.insert_many(document)
