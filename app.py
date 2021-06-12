@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen
 import os
 app = Flask(__name__,
             static_url_path='', 
@@ -167,9 +167,9 @@ def addpfp():
     else:
       file1 = request.files['image']
       filetype = str(file1.filename).split(".")[-1]
-      if filetype != "png":
-        return render_template("error.html", error="Your profile picture file must be a png file!")
-      path = os.path.join(app.config['UPLOAD_FOLDER'], getcookie("User")+".png")
+      if filetype != "jpg":
+        return render_template("error.html", error="Your profile picture file must be a jpg file!")
+      path = os.path.join(app.config['UPLOAD_FOLDER'], getcookie("User")+".jpg")
       file1.save(path)
       return redirect("/")
 
@@ -199,3 +199,24 @@ def unfollowpage(username):
     return redirect(f"/profile/{username}")
   else:
     return render_template("error.html", error=func)
+
+@app.route("/notifs")
+def notifs():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  if getuser(getcookie("User")) == False:
+    delcookie("hello")
+    return redirect("/")
+  notifs = getnotifs(getcookie("User"))
+  allseen(getcookie("User"))
+  return render_template("notifs.html", notifs=notifs)
+
+@app.route("/clearnotifs")
+def clearnotifsapp():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  if getuser(getcookie("User")) == False:
+    delcookie("hello")
+    return redirect("/")
+  clearnotifs(getcookie("User"))
+  return redirect("/notifs")

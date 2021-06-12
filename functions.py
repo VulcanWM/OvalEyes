@@ -12,6 +12,7 @@ import datetime
 client = pymongo.MongoClient(os.getenv("clientm"))
 usersdb = client.Users
 profilescol = usersdb.Profiles
+notifscol = usersdb.Notifications
 
 def addcookie(key, value):
   session[key] = value
@@ -201,9 +202,29 @@ def unfollow(username, unfollowing):
   profilescol.insert_many([other])
   return True
 
-# follow("vulcanwm", "hi")
-# print(getuser("vulcanwm"))
-# print(getuser("hi"))
-# unfollow("vulcanwm", "hi")
-# print(getuser("vulcanwm"))
-# print(getuser("hi"))
+def getnotifs(username):
+  myquery = { "Username": username }
+  mydoc = notifscol.find(myquery)
+  notifs = []
+  for x in mydoc:
+    notifs.append(x)
+  return notifs
+
+def addnotif(username, notif):
+  notif = {"Username": username, "Notification": notif, "Seen": False}
+  notifscol.insert_many([notif])
+  return True
+
+def clearnotifs(username):
+  notifs = getnotifs(username)
+  for notif in notifs:
+    delete = {"_id": notif['_id']}
+    notifscol.delete_one(delete)
+  return True
+
+def allseen(username):
+  notifs = getnotifs(username)
+  myquery = { "Username": username }
+  newvalues = { "$set": { "Seen": True } }
+  notifscol.update_many(myquery, newvalues)
+  return True

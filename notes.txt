@@ -1,5 +1,10 @@
-Login/Signup
 Url Shortener
 Random generators: number, name, word, password, website
-Social Media
+Make Posts
+See Posts
+Like Posts
+Share Posts
+Delete Posts
+Hot/Top/New Posts
+Report
 APIs: weather, flights
