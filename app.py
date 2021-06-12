@@ -1,13 +1,15 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow
 import os
 app = Flask(__name__,
             static_url_path='', 
             static_folder='static',
             template_folder='templates')
 app.config['SECRET_KEY'] = os.getenv("secretkey")
+UPLOAD_FOLDER = './pfps'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/')
 def index():
@@ -60,7 +62,7 @@ def signup():
     if set(password).difference(printable):
       return render_template("error.html", error="Your password cannot contain any special characters!")
     email = str(request.form['email']).lower()
-    if checkusernamealready(email) == True:
+    if checkemailalready(email) == True:
       return render_template("error.html", error="A user already has this email! Try another one.")
     func = makeaccount(username, password, email)
     if func == True or func == None:
@@ -93,10 +95,21 @@ def verifypage(username, id):
 
 @app.route("/profile/<username>")
 def profile(username):
+  username = username.lower()
   if getuser(username) == False:
     return render_template("error.html", error=f"{username} isn't a user!")
   else:
-    return render_template("profile.html", user=getuser(username))
+    follow = False
+    if getcookie("User") == False:
+      follow = False
+    else:
+      if getcookie("User") == username:
+        follow = "NO"
+      elif getcookie("User") in getuser(username)['Followers']:
+        follow = True
+      else:
+        follow = False
+    return render_template("profile.html", user=getuser(username), follow=follow)
 
 @app.route("/adddesc")
 def adddescpage():
@@ -113,6 +126,8 @@ def adddescfunc():
   if request.method == 'POST':
     if getcookie("User") != False:
       desc = request.form['desc']
+      if len(desc) > 150:
+        return render_template("error.html", error="Your description has to be less than 150 characters!")
       func = adddesc(getcookie("User"), desc)
       if func == True:
         return redirect(f"/profile/{getcookie('User')}")
@@ -120,3 +135,67 @@ def adddescfunc():
         return render_template("error.html", error=func)
     else:
       return render_template("error.html", error="You have already logged in!")
+
+@app.route("/followers/<username>")
+def followers(username):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You need to log in to see a user's followers!")
+  else:
+    user = getuser(username)
+    return render_template("follow.html", name="Followers", user=user, msg=f"{username} has no followers!")
+
+@app.route("/following/<username>")
+def following(username):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You need to log in to see who a user is following!")
+  else:
+    user = getuser(username)
+    return render_template("follow.html", name="Following", user=user, msg=f"{username} is not following anyone!")
+
+@app.route("/addpfp")
+def addpfppage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You haven't logged in!")
+  else:
+    return render_template("addpfp.html")
+
+@app.route('/addpfp', methods=['GET', 'POST'])
+def addpfp():
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You haven't logged in!")
+    else:
+      file1 = request.files['image']
+      filetype = str(file1.filename).split(".")[-1]
+      if filetype != "png":
+        return render_template("error.html", error="Your profile picture file must be a png file!")
+      path = os.path.join(app.config['UPLOAD_FOLDER'], getcookie("User")+".png")
+      file1.save(path)
+      return redirect("/")
+
+@app.route("/pfps/<username>")
+def pfpuser(username):
+  try:
+    return send_file(f"pfps/{username}.png")
+  except:
+    return send_file("static/unnamed.png")
+
+@app.route("/follow/<username>")
+def followpage(username):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You haven't logged in!")
+  func = follow(getcookie("User"), username)
+  if func == True:
+    return redirect(f"/profile/{username}")
+  else:
+    return render_template("error.html", error=func)
+
+@app.route("/unfollow/<username>")
+def unfollowpage(username):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You haven't logged in!")
+  func = unfollow(getcookie("User"), username)
+  if func == True:
+    return redirect(f"/profile/{username}")
+  else:
+    return render_template("error.html", error=func)

@@ -3,9 +3,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='navbar.css') }}" rel="stylesheet" type="text/css" />
     <title>VulcanWM</title>
   </head>
   <body>
+    <ul>
+      <li><a class="active" href="/">Home</a></li>
+      <li><a href="/profile/{{user['Username']}}">Your profile</a></li>
+      <li><a href="/adddesc">Add Description</a></li>
+      <li><a href="/addpfp">Add Profile Pic</a></li>
+      <div class="topnav-right">
+        <img src="https://VulcanWM.repl.co/pfps/{{user['Username']}}" alt="Profile Pic" style="width:50px;height:50px;float:right">
+      </div>
+    </ul>
     <p>Hi {{user['Username']}}</p>
   </body>
 </html>

@@ -15,24 +15,14 @@
       {% endif %}
       <br>
       <p>Likes: {{user['Likes']}}</p>
-      <p>Account created on: ₹{{user['Created']}}</p>
+      <p>Account created on: {{user['Created']}}</p>
       <br>
-      {% if user['Following'] == [] %}
-        <p>{{user['Username']}} is not following anyone!</p>
-      {% else %}
-        <h3>Following</h3>
-          {% for person in user['Following'] %}
-            <p>{{person}}</p>
-          {% endfor %}
-      {% endif %}
-      <br>
-      {% if user['Followers'] == [] %}
-        <p>Nobody is following {{user['Username']}}!</p>
-      {% else %}
-        <h3>Followers</h3>
-          {% for person in user['Followers'] %}
-            <p>{{person}}</p>
-          {% endfor %}
+      <p><a href="/following/{{user['Username']}}">Following</a> ({{user['Following'] | length}})</p>
+      <p><a href="/followers/{{user['Username']}}">Followers</a> ({{user['Followers'] | length}})</p>
+      {% if follow == True %}
+        <a href="/unfollow/{{user['Username']}}">Unfollow {{user['Username']}}</a>
+      {% elif follow == False %}
+        <a href="/follow/{{user['Username']}}">Follow {{user['Username']}}</a>
       {% endif %}
     </body>
 </html>

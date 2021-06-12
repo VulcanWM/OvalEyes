@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <title>VulcanWM {{name}} - {{user['Username']}}</title>
+  </head>
+    <body>
+      <h2><a href="/">Home</a></h2>
+      <h1>{{user['Username'].upper()}}</h1> 
+      {% if user[name] == [] %}
+        <p>{{msg}}</p>
+      {% else %}
+        <h3>{{name}} ({{user[name] | length}})</h3>
+          {% for person in user[name] %}
+            <p>{{person}}</p>
+          {% endfor %}
+      {% endif %}
+      <p>Click <a href="/profile/{{user['Username']}}">here</a> to go back to {{user['Username']}}'s profile</a>
+    </body>
+</html>

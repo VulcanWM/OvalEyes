@@ -150,3 +150,60 @@ def adddesc(username, desc):
     return True
   except Exception as e: 
     return e
+
+def follow(follower, following):
+  follower = follower.lower()
+  following = following.lower()
+  if follower in getuser(following)['Followers']:
+    return f'You are already following {following}!'
+  if getuser(following) == False:
+    return f"{following} is not a real user!"
+  if follower == following:
+    return "You can't follow yourself!"
+  followeruser = getuser(follower)
+  followingdoc = followeruser['Following']
+  followingdoc.append(following)
+  del followeruser['Following']
+  followeruser['Following'] = followingdoc
+  delete = {"Username": follower}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([followeruser])
+  followinguser = getuser(following)
+  followersdoc = followeruser['Followers']
+  followersdoc.append(follower)
+  del followinguser['Followers']
+  followinguser['Followers'] = followersdoc
+  delete = {"Username": following}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([followinguser])
+  return True
+
+def unfollow(username, unfollowing):
+  if username not in getuser(unfollowing)['Followers']:
+    return f'You are not following {unfollowing}!'
+  if getuser(unfollowing) == False:
+    return f"{unfollowing} is not a real user!"
+  user = getuser(username)
+  doc = user['Following']
+  doc.remove(unfollowing)
+  del user['Following']
+  user['Following'] = doc
+  delete = {"Username": username}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([user])
+  other = getuser(unfollowing)
+  otherdoc = other['Followers']
+  otherdoc.remove(username)
+  del other['Followers']
+  other['Followers'] = otherdoc
+  otherdelete = {"Username": unfollowing}
+  profilescol.delete_one(otherdelete)
+  profilescol.insert_many([other])
+  return True
+
+# follow("vulcanwm", "hi")
+# print(getuser("vulcanwm"))
+# print(getuser("hi"))
+# unfollow("vulcanwm", "hi")
+# print(getuser("vulcanwm"))
+# print(getuser("hi"))
