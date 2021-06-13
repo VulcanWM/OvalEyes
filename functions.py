@@ -254,7 +254,21 @@ def makepost(username, title, desc):
     "Title": title,
     "Description": desc,
     "Likes": 0,
-    "Views": 0,
+    "Views": [],
     "Created": str(datetime.datetime.now())
   }]
   postscol.insert_many(document)
+
+def viewpost(id, username):
+  post = getpostid(str(id))
+  if username in post['Views']:
+    return True
+  else:
+    views = post['Views']
+    views.append(username)
+    del post['Views']
+    post['Views'] = views
+    delete = {"_id": int(id)}
+    postscol.delete_one(delete)
+    postscol.insert_many([post])
+    return True

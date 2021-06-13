@@ -14,6 +14,6 @@
       <h4>By <a href="/profile/{{post['Author']}}">{{post['Author']}}</a></h4>
       <h4>Created on: {{post['Created']}}</h4>
       <h4>Likes: {{post['Likes']}}</h4>
-      <h4>View: {{post['Views']}}</h4>
+      <h4>View: {{ post['Views'] | length }}</h4>
     </body>
 </html>

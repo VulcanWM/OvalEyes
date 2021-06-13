@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost
 import os
 app = Flask(__name__,
             static_url_path='', 
@@ -250,4 +250,6 @@ def post(theid):
   if getpostid(int(theid)) == False:
     return render_template("error.html", "This post doesn't exist!")
   post = getpostid(int(theid))
+  if getcookie("User") != False:
+    viewpost(theid, getcookie("User"))
   return render_template("post.html", post=post)
