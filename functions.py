@@ -15,6 +15,7 @@ profilescol = usersdb.Profiles
 notifscol = usersdb.Notifications
 postsdb = client.Posts
 postscol = postsdb.Posts
+mods = ["vulcanwm"]
 def addcookie(key, value):
   session[key] = value
 
@@ -119,12 +120,12 @@ def send_mail(usermail, username, id):
     MAILPASS = os.getenv("MAIL_PASSWORD")
     html = f"""
     <h1>Hello {username}!</h1>
-    <p><strong>You have signed up for an account in VulcanWM!</strong></p>
-    <p>Click <a href='https://VulcanWM.repl.co/verify/{username}/{str(id)}'>here</a> to verify your account</p>
+    <p><strong>You have signed up for an account in OvalEyes!</strong></p>
+    <p>Click <a href='https://OvalEyes.VulcanWM.repl.co/verify/{username}/{str(id)}'>here</a> to verify your account</p>
     <p>If you didn't make this account, reply back to this email saying this isn't your account and <strong>DO NOT</strong> click on the link or the user who made the account will get verified with your email!</p>
     """
     message = MIMEMultipart("alternative")
-    message["Subject"] = "VulcanWM Verification Email"
+    message["Subject"] = "OvalEyes Verification Email"
     part2 = MIMEText(html, "html")
     message.attach(part2)
     try:
@@ -254,8 +255,9 @@ def makepost(username, title, desc):
     "Title": title,
     "Description": desc,
     "Likes": 0,
+    "LikesPeople": [],
     "Views": [],
-    "Created": str(datetime.datetime.now())
+    "Created": datetime.datetime.now()
   }]
   postscol.insert_many(document)
 
@@ -272,3 +274,37 @@ def viewpost(id, username):
     postscol.delete_one(delete)
     postscol.insert_many([post])
     return True
+
+def delpost(username, theid):
+  post = getpostid(int(theid))
+  if post == False:
+    return "This is not a real post!"
+  if post['Author'] == username:
+    delete = {"_id": post["_id"]}
+    postscol.delete_one(delete)
+    return True
+  elif username in mods:
+    delete = {"_id": post["_id"]}
+    postscol.delete_one(delete)
+    addnotif(post['Author'], f"Your post has been deleted!")
+    return True
+  else:
+    return "You cannot delete this post!"
+
+def gettop():
+  number = 0
+  posts = []
+  for post in postscol.find().sort("Likes", -1):
+    if number == 10:
+      return posts
+    posts.append(post)
+    number = number + 1
+
+def getnew():
+  number = 0
+  posts = []
+  for post in postscol.find().sort("Created", -1):
+    if number == 10:
+      return posts
+    posts.append(post)
+    number = number + 1

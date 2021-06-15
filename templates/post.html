@@ -3,6 +3,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='modal.css') }}" rel="stylesheet" type="text/css" />
     <title>VulcanWM - {{post['Title']}}</title>
   </head>
     <body>
@@ -15,5 +16,22 @@
       <h4>Created on: {{post['Created']}}</h4>
       <h4>Likes: {{post['Likes']}}</h4>
       <h4>View: {{ post['Views'] | length }}</h4>
+      {% if perms == True %}
+        <a href="/deletepost/{{post['_id']}}">Delete this post</a>
+      {% endif %}
+      <br>
+      <button id="myBtn">Share Post</button>
+      <div id="myModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>Share this post</h2>
+          </div>
+          <div class="modal-body">
+            <p>Share the post link: <code>https://OvalEyes.vulcanwm.repl.co/post/{{post['_id']}}</code></p>
+          </div>
+        </div>
+      </div>
+      <script src="{{ url_for('static', filename='modal.js') }}"></script>
     </body>
 </html>

@@ -1,17 +1,15 @@
-Url Shortener
-Random number generator
-Random name generator
-Random word generator
-Rander password generator
-Ramdom website generator
 Like Posts
 Unlike Posts
-Share Posts
-Delete Posts
+Edit Posts
 Mention users in Comments and Posts
-Settings
-Hot/Top/New Posts
+Edit Comments
+Delete Comments
+Settings: email notifications
+Settings: private/public account
+Private/Public Account
+Follow requests
 Comment
 Report
-Weather API
-Flights API
+Tag Posts
+Blocking
+Dming

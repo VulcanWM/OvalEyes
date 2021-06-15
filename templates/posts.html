@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <title>VulcanWM - {{title}}</title>
+  </head>
+    <body>
+      <h2><a href="/">Home</a></h2>
+      <h1>{{title}}</h1>
+      {% for post in posts %}
+        <button class="post" onclick="window.location.href='/post/{{post['_id']}}'">
+          <h3>{{post['Title']}}</h3>
+          <p>By {{post['Author']}}</p>
+          <p>Likes: {{post['Likes']}}</p>
+        </button>
+        <br>
+      {% endfor %}
+    </body>
+</html>

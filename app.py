@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template, redirect, send_file
 from string import printable
+import random
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew
+from functions import mods
 import os
 app = Flask(__name__,
             static_url_path='', 
@@ -116,6 +118,8 @@ def adddescpage():
   if getcookie("User") == False:
     return render_template("error.html", error="You are not logged in!")
   else:
+    if getuser(getcookie("User"))['Verified'] == False:
+      return render_template("error.html", error="Verify your account to access everything!")
     desc = getuser(getcookie("User"))['Description']
     if desc == None:
       desc = ""
@@ -125,6 +129,8 @@ def adddescpage():
 def adddescfunc():
   if request.method == 'POST':
     if getcookie("User") != False:
+      if getuser(getcookie("User"))['Verified'] == False:
+        return render_template("error.html", error="Verify your account to access everything!")
       desc = request.form['desc']
       if len(desc) > 150:
         return render_template("error.html", error="Your description has to be less than 150 characters!")
@@ -134,13 +140,15 @@ def adddescfunc():
       else:
         return render_template("error.html", error=func)
     else:
-      return render_template("error.html", error="You have already logged in!")
+      return render_template("error.html", error="You are not logged in!")
 
 @app.route("/followers/<username>")
 def followers(username):
   if getcookie("User") == False:
     return render_template("error.html", error="You need to log in to see a user's followers!")
   else:
+    if getuser(getcookie("User"))['Verified'] == False:
+      return render_template("error.html", error="Verify your account to access everything!")
     user = getuser(username)
     return render_template("follow.html", name="Followers", user=user, msg=f"{username} has no followers!")
 
@@ -149,6 +157,8 @@ def following(username):
   if getcookie("User") == False:
     return render_template("error.html", error="You need to log in to see who a user is following!")
   else:
+    if getuser(getcookie("User"))['Verified'] == False:
+      return render_template("error.html", error="Verify your account to access everything!")
     user = getuser(username)
     return render_template("follow.html", name="Following", user=user, msg=f"{username} is not following anyone!")
 
@@ -157,6 +167,8 @@ def addpfppage():
   if getcookie("User") == False:
     return render_template("error.html", error="You haven't logged in!")
   else:
+    if getuser(getcookie("User"))['Verified'] == False:
+      return render_template("error.html", error="Verify your account to access everything!")
     return render_template("addpfp.html")
 
 @app.route('/addpfp', methods=['GET', 'POST'])
@@ -165,6 +177,8 @@ def addpfp():
     if getcookie("User") == False:
       return render_template("error.html", error="You haven't logged in!")
     else:
+      if getuser(getcookie("User"))['Verified'] == False:
+        return render_template("error.html", error="Verify your account to access everything!")
       file1 = request.files['image']
       filetype = str(file1.filename).split(".")[-1]
       if filetype != "jpg":
@@ -184,6 +198,10 @@ def pfpuser(username):
 def followpage(username):
   if getcookie("User") == False:
     return render_template("error.html", error="You haven't logged in!")
+  if getuser(getcookie("User"))['Verified'] == False:
+    return render_template("error.html", error="Verify your account to access everything!")
+  if getuser(username)['Verified'] == False:
+    return render_template("error.html", error=f"{username} isn't verified!")
   func = follow(getcookie("User"), username)
   if func == True:
     return redirect(f"/profile/{username}")
@@ -194,6 +212,8 @@ def followpage(username):
 def unfollowpage(username):
   if getcookie("User") == False:
     return render_template("error.html", error="You haven't logged in!")
+  if getuser(getcookie("User"))['Verified'] == False:
+    return render_template("error.html", error="Verify your account to access everything!")
   func = unfollow(getcookie("User"), username)
   if func == True:
     return redirect(f"/profile/{username}")
@@ -226,6 +246,8 @@ def makepostpage():
   if getcookie("User") == False:
     return render_template("login.html")
   else:
+    if getuser(getcookie("User"))['Verified'] == False:
+      return render_template("error.html", error="Verify your account to access everything!")
     return render_template("makepost.html")
 
 @app.route("/makepost", methods=['GET', 'POST'])
@@ -234,6 +256,8 @@ def makepostfunc():
     if getcookie("User") == False:
       return render_template("login.html")
     else:
+      if getuser(getcookie("User"))['Verified'] == False:
+        return render_template("error.html", error="Verify your account to access everything!")
       username = getcookie("User")
       title = request.form['title']
       desc = request.form['desc']
@@ -250,6 +274,38 @@ def post(theid):
   if getpostid(int(theid)) == False:
     return render_template("error.html", "This post doesn't exist!")
   post = getpostid(int(theid))
-  if getcookie("User") != False:
+  perms = {"perms": False}
+  if getcookie("User") == False:
+    pass
+  else:
     viewpost(theid, getcookie("User"))
-  return render_template("post.html", post=post)
+    if post['Author'] == getcookie("User"):
+      del perms['perms']
+      perms['perms'] = True
+    elif getcookie("User") in mods:
+      del perms['perms']
+      perms['perms'] = True
+  return render_template("post.html", post=post, perms=perms['perms'])
+
+@app.route("/deletepost/<theid>")
+def deletepost(theid):
+  if getpostid(int(theid)) == False:
+    return render_template("error.html", error="This post isn't a post!")
+  title = getpostid(int(theid))['Title']
+  if getcookie("User") == False:
+    return render_template("error.html", error="You aren't logged in!")
+  func = delpost(getcookie("User"), int(theid))
+  if func == True:
+    return render_template("success.html", success=f"The post {title} has been deleted!")
+  else:
+    return render_template("error.html", error=func)
+
+@app.route("/newposts")
+def newposts():
+  title = "New Posts"
+  return render_template("posts.html", posts=getnew(), title=title)
+
+@app.route("/topposts")
+def topposts():
+  title = "Top Posts"
+  return render_template("posts.html", posts=gettop(), title=title)
