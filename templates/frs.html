@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <title>VulcanWM - Your Follow Requests</title>
+  </head>
+    <body>
+      <h2><a href="/">Home</a></h2>
+      <h1>Your Follow Requests</h1>
+      {% if allfr == [] %}
+        <p>You don't have any follow requests!</p>
+      {% endif %}
+      {% for req in allfr %}
+        <button class="post" onclick="window.location.href='/accept/{{req['Follower']}}/{{req['Following']}}'">
+          <p>Accept {{req['Follower']}}</p>
+        </button>
+        <button class="post" onclick="window.location.href='/decline/{{req['Follower']}}/{{req['Following']}}'">
+          <p>Decline {{req['Follower']}}</p>
+        </button>
+        <br>
+      {% endfor %}
+    </body>
+</html>

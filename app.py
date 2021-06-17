@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 import random
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs
 from functions import mods
 import os
 app = Flask(__name__,
@@ -309,3 +309,66 @@ def newposts():
 def topposts():
   title = "Top Posts"
   return render_template("posts.html", posts=gettop(), title=title)
+
+@app.route("/settings")
+def settings():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    return render_template("settings.html", settings=getsettings(getcookie("User")))
+
+@app.route("/settings/public")
+def settingspublic():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    func = changepublicsettings(getcookie("User"))
+    if func == True:
+      return redirect("/settings")
+    else:
+      return render_template("error.html", error="Something unexpected happened!")
+
+@app.route("/settings/emailnotif")
+def settingemailnotif():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    func = changeemailsettings(getcookie("User"))
+    if func == True:
+      return redirect("/settings")
+    else:
+      return render_template("error.html", error="Something unexpected happened!")
+
+@app.route("/accept/<follower>/<following>")
+def acceptfrpage(follower, following):
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    func = acceptfr(getcookie("User"), follower, following)
+    if func == True:
+      return render_template("success.html", success=f"You accepted a follow request from {follower}!")
+      addnotif(follower, f"{following} accepted a follow request from you!")
+    else:
+      return render_template("error.html", error=func)
+
+@app.route("/decline/<follower>/<following>")
+def declinefrpage(follower, following):
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    func = declinefr(getcookie("User"), follower, following)
+    if func == True:
+      return render_template("success.html", success=f"You declined a follow request from {follower}!")
+      addnotif(follower, f"{following} declined a follow request from you!")
+    else:
+      return render_template("error.html", error=func)
+
+@app.route("/allfrs")
+def frs():
+  if getcookie("User") == False:
+    return render_template("login.html")
+  else:
+    if getsettings(getcookie("User"))['Public'] == True:
+      return render_template("error.html", error="You can't have follow requests if your account is public!")
+    else:
+      return render_template("frs.html", allfr=allfrs(getcookie("User")))

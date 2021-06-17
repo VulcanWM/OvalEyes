@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ url_for('static', filename='settings.css') }}" rel="stylesheet" type="text/css" />
+    <title>VulcanWM - Settings</title>
+  </head>
+    <body>
+      <h2><a href="/">Home</a></h2>
+      <h1>Settings</h1>
+      <h3>Email Verification Notifications</h3>
+      {% if settings['Email'] == False %}
+        <label class="switch">
+          <input type="checkbox" onchange="window.location.href='/settings/emailnotif'">
+          <span class="slider round"></span>
+        </label>
+      {% else %}
+        <label class="switch">
+          <input type="checkbox" onchange="window.location.href='/settings/emailnotif'" checked>
+          <span class="slider round"></span>
+        </label>
+      {% endif %}
+      <h3>Public Account</h3>
+      {% if settings['Public'] == False %}
+        <label class="switch">
+          <input type="checkbox" onchange="window.location.href='/settings/public'">
+          <span class="slider round"></span>
+        </label>
+      {% else %}
+        <label class="switch">
+          <input type="checkbox" onchange="window.location.href='/settings/public'" checked>
+          <span class="slider round"></span>
+        </label>
+      {% endif %}
+    </body>
+</html>

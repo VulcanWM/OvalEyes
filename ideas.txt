@@ -4,12 +4,10 @@ Edit Posts
 Mention users in Comments and Posts
 Edit Comments
 Delete Comments
-Settings: email notifications
-Settings: private/public account
-Private/Public Account
-Follow requests
 Comment
 Report
-Tag Posts
 Blocking
 Dming
+Public/Private Posts
+Post Seeing Perms
+Posts on User's Profile

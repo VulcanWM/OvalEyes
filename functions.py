@@ -13,6 +13,8 @@ client = pymongo.MongoClient(os.getenv("clientm"))
 usersdb = client.Users
 profilescol = usersdb.Profiles
 notifscol = usersdb.Notifications
+settingscol = usersdb.Settings
+frcol = usersdb.FollowRequests
 postsdb = client.Posts
 postscol = postsdb.Posts
 mods = ["vulcanwm"]
@@ -129,7 +131,7 @@ def send_mail(usermail, username, id):
     part2 = MIMEText(html, "html")
     message.attach(part2)
     try:
-      sendermail = "vulcanwmemail@gmail.com"
+      sendermail = "ovaleyesofficial@gmail.com"
       password = MAILPASS
       gmail_server = smtplib.SMTP('smtp.gmail.com', 587)
       gmail_server.starttls(context=context)
@@ -163,6 +165,11 @@ def follow(follower, following):
     return f"{following} is not a real user!"
   if follower == following:
     return "You can't follow yourself!"
+  if getsettings(following)['Public'] == False:
+    if checkfr(follower, following) == True:
+      return f"You are waiting for {following} to accept your follow request!"
+    followrequest(follower, following)
+    return True
   followeruser = getuser(follower)
   followingdoc = followeruser['Following']
   followingdoc.append(following)
@@ -213,8 +220,36 @@ def getnotifs(username):
   return notifs
 
 def addnotif(username, notif):
-  notif = {"Username": username, "Notification": notif, "Seen": False}
-  notifscol.insert_many([notif])
+  notifdoc = {"Username": username, "Notification": notif, "Seen": False}
+  notifscol.insert_many([notifdoc])
+  if getsettings(username)['Email'] == True:
+    context = ssl.create_default_context()
+    MAILPASS = os.getenv("MAIL_PASSWORD")
+    html = f"""
+    <h1>Hello {username}!</h1>
+    <p><strong>You have one new notification!</strong></p>
+    <p>{notif}</p>
+    <p>If you want to disable email notifications, then click <a href="https://OvalEyes.vulcanwm.repl.co/settings">here</a> to to disable them!
+    """
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "OvalEyes New Notification"
+    part2 = MIMEText(html, "html")
+    message.attach(part2)
+    try:
+      sendermail = "ovaleyesofficial@gmail.com"
+      password = MAILPASS
+      gmail_server = smtplib.SMTP('smtp.gmail.com', 587)
+      gmail_server.starttls(context=context)
+      gmail_server.login(sendermail, password)
+      message["From"] = sendermail
+      usermail = getuser(username)['Email']
+      message["To"] = usermail
+      gmail_server.sendmail(sendermail, usermail, message.as_string())
+      return True
+    except Exception as e:
+      print(e)
+      return "Verification email not sent, due to some issues."
+      gmail_server.quit()
   return True
 
 def clearnotifs(username):
@@ -308,3 +343,104 @@ def getnew():
       return posts
     posts.append(post)
     number = number + 1
+
+def getsettings(username):
+  myquery = { "Username": username }
+  mydoc = settingscol.find(myquery)
+  for x in mydoc:
+    return x
+  print("not a document")
+  return {"Username": username,"Email": False, "Public": False}
+
+def getsettingstof(username):
+  myquery = { "Username": username }
+  mydoc = settingscol.find(myquery)
+  for x in mydoc:
+    return True
+  return False
+
+def changepublicsettings(username):
+  document = getsettings(username)
+  if getsettingstof(username) == True:
+    delete = {"Username": username}
+    settingscol.delete_one(delete)
+  old = document['Public']
+  if old == False:
+    del document['Public']
+    document['Public'] = True
+    settingscol.insert_many([document])
+  if old == True:
+    del document['Public']
+    document['Public'] = False
+    settingscol.insert_many([document])
+  return True
+
+def changeemailsettings(username):
+  document = getsettings(username)
+  if getsettingstof(username) == True:
+    delete = {"Username": username}
+    settingscol.delete_one(delete)
+  old = document['Email']
+  if old == False:
+    del document['Email']
+    document['Email'] = True
+    settingscol.insert_many([document])
+  if old == True:
+    del document['Email']
+    document['Email'] = False
+    settingscol.insert_many([document])
+  return True
+
+def followrequest(follower, following):
+  document = [{
+    "Follower": follower,
+    "Following": following
+  }]
+  frcol.insert_many(document)
+
+def checkfr(follower, following):
+  myquery = { "Follower": follower, "Following": following }
+  mydoc = frcol.find(myquery)
+  for x in mydoc:
+    return x
+  return False
+
+def acceptfr(username, follower, following):
+  if username != following:
+    return "You cannot accept someone else's follow request!"
+  theid = checkfr(follower, following)['_id']
+  delete = {"_id": theid}
+  frcol.delete_one(delete)
+  followeruser = getuser(follower)
+  followingdoc = followeruser['Following']
+  followingdoc.append(following)
+  del followeruser['Following']
+  followeruser['Following'] = followingdoc
+  delete = {"Username": follower}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([followeruser])
+  followinguser = getuser(following)
+  followersdoc = followeruser['Followers']
+  followersdoc.append(follower)
+  del followinguser['Followers']
+  followinguser['Followers'] = followersdoc
+  delete = {"Username": following}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([followinguser])
+  return True
+
+def allfrs(username):
+  myquery = {"Following": username}
+  mydoc = frcol.find(myquery)
+  allfr = []
+  for x in mydoc:
+    allfr.append(x)
+  return allfr
+
+def declinefr(username, follower, following):
+  if username != following:
+    return "You cannot decline someone else's follow request!"
+  theid = checkfr(follower, following)['_id']
+  delete = {"_id": theid}
+  frcol.delete_one(delete)
+  return True
