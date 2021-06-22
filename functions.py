@@ -2,6 +2,8 @@ import pymongo
 import smtplib
 import ssl
 import random
+import requests
+import json
 from flask import session
 import os
 import dns
@@ -17,7 +19,7 @@ settingscol = usersdb.Settings
 frcol = usersdb.FollowRequests
 postsdb = client.Posts
 postscol = postsdb.Posts
-mods = ["vulcanwm"]
+mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
   session[key] = value
 
@@ -166,7 +168,7 @@ def follow(follower, following):
   if follower == following:
     return "You can't follow yourself!"
   if getsettings(following)['Public'] == False:
-    if checkfr(follower, following) == True:
+    if checkfr(follower, following) != False:
       return f"You are waiting for {following} to accept your follow request!"
     followrequest(follower, following)
     return True
@@ -280,7 +282,7 @@ def getpostid(id):
     return x
   return False
 
-def makepost(username, title, desc):
+def makepost(username, title, desc, posttype):
   id = random_with_N_digits(10)
   while getuserid(int(id)) == True:
     id = random_with_N_digits(10)
@@ -292,6 +294,7 @@ def makepost(username, title, desc):
     "Likes": 0,
     "LikesPeople": [],
     "Views": [],
+    "Type": posttype,
     "Created": datetime.datetime.now()
   }]
   postscol.insert_many(document)
@@ -399,7 +402,7 @@ def followrequest(follower, following):
   frcol.insert_many(document)
 
 def checkfr(follower, following):
-  myquery = { "Follower": follower, "Following": following }
+  myquery = { "Follower": follower }
   mydoc = frcol.find(myquery)
   for x in mydoc:
     return x
@@ -444,3 +447,28 @@ def declinefr(username, follower, following):
   delete = {"_id": theid}
   frcol.delete_one(delete)
   return True
+
+def alluserposts(username):
+  myquery = { "Author":username }
+  mydoc = postscol.find(myquery)
+  posts = []
+  for x in mydoc:
+    if x['Type'] == "Public":
+      posts.append(x)
+  return posts
+
+def editpost(id, desc):
+  post = getpostid(id)
+  del post['Description']
+  post['Description'] = desc
+  delete = {"_id": post['_id']}
+  postscol.delete_one(delete)
+  postscol.insert_many([post])
+  return True
+
+def is_human(captcha_response):
+  secret = os.getenv("captcha_secret")
+  payload = {'response':captcha_response, 'secret':secret}
+  response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+  response_text = json.loads(response.text)
+  return response_text['success']

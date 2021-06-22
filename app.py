@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file
 from string import printable
 import random
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human
 from functions import mods
 import os
 app = Flask(__name__,
@@ -66,6 +66,11 @@ def signup():
     email = str(request.form['email']).lower()
     if checkemailalready(email) == True:
       return render_template("error.html", error="A user already has this email! Try another one.")
+    captcha_response = request.form.get("g-recaptcha-response")
+    if is_human(captcha_response):
+      pass
+    else:
+      return render_template("error.html", error="No bots allowed!")
     func = makeaccount(username, password, email)
     if func == True or func == None:
       addcookie("User", username)
@@ -261,11 +266,12 @@ def makepostfunc():
       username = getcookie("User")
       title = request.form['title']
       desc = request.form['desc']
+      posttype = request.form['posttype']
       if getpost(desc) != False:
         return render_template("error.html", error="You already have a post with the same description!")
       if len(desc) > 300:
         return render_template("error.html", error="You cannot have more than 300 letters!")
-      makepost(username, title, desc)
+      makepost(username, title, desc, posttype)
       theid = str(getpost(desc)['_id'])
       return redirect(f"/post/{theid}")
 
@@ -274,18 +280,28 @@ def post(theid):
   if getpostid(int(theid)) == False:
     return render_template("error.html", "This post doesn't exist!")
   post = getpostid(int(theid))
-  perms = {"perms": False}
-  if getcookie("User") == False:
-    pass
+  if post['Type'] == 'Public':
+    perms = {"perms": False}
+    if getcookie("User") == False:
+      pass
+    else:
+      viewpost(theid, getcookie("User"))
+      if post['Author'] == getcookie("User"):
+        del perms['perms']
+        perms['perms'] = True
+      elif getcookie("User") in mods:
+        del perms['perms']
+        perms['perms'] = True
+    return render_template("post.html", post=post, perms=perms['perms'])
   else:
-    viewpost(theid, getcookie("User"))
-    if post['Author'] == getcookie("User"):
-      del perms['perms']
-      perms['perms'] = True
-    elif getcookie("User") in mods:
-      del perms['perms']
-      perms['perms'] = True
-  return render_template("post.html", post=post, perms=perms['perms'])
+    if getcookie("User") in mods:
+      return render_template("post.html", post=post, perms=True)
+    elif getcookie("User") == post['Author']:
+      return render_template("post.html", post=post, perms=True)
+    elif getcookie("User") in getuser(post['Author'])['Followers']:
+      return render_template("post.html", post=post, perms=False)
+    else:
+      return render_template("error.html", error=f"You cannot view this private post unless you are following {post['Author']}!")
 
 @app.route("/deletepost/<theid>")
 def deletepost(theid):
@@ -299,16 +315,6 @@ def deletepost(theid):
     return render_template("success.html", success=f"The post {title} has been deleted!")
   else:
     return render_template("error.html", error=func)
-
-@app.route("/newposts")
-def newposts():
-  title = "New Posts"
-  return render_template("posts.html", posts=getnew(), title=title)
-
-@app.route("/topposts")
-def topposts():
-  title = "Top Posts"
-  return render_template("posts.html", posts=gettop(), title=title)
 
 @app.route("/settings")
 def settings():
@@ -372,3 +378,13 @@ def frs():
       return render_template("error.html", error="You can't have follow requests if your account is public!")
     else:
       return render_template("frs.html", allfr=allfrs(getcookie("User")))
+
+@app.route("/posts/<username>")
+def usersposts(username):
+  username = username.lower()
+  if getuser(username) == False:
+    return render_template("error.html", error=f"{username} isn't a user!")
+  else:
+    posts = alluserposts(username)
+    return render_template("posts.html", 
+    posts=posts, title=f"{username.upper()}'S POSTS", username=username)

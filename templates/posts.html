@@ -3,7 +3,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
-    <title>VulcanWM - {{title}}</title>
+    <title>OvalEyes - {{title}}</title>
   </head>
     <body>
       <h2><a href="/">Home</a></h2>
@@ -11,9 +11,10 @@
       {% for post in posts %}
         <button class="post" onclick="window.location.href='/post/{{post['_id']}}'">
           <h3>{{post['Title']}}</h3>
-          <p>By {{post['Author']}}</p>
+          <!-- <p>By {{post['Author']}}</p> -->
           <p>Likes: {{post['Likes']}}</p>
         </button>
+        <p>Click <a href="/profile/{{username}}">here</a> to go back to {{username}}'s profile</a>
         <br>
       {% endfor %}
     </body>

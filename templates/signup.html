@@ -3,10 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>VulcanWM - Signup</title>
+    <title>OvalEyes - Signup</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
   </head>
   <body>
     <div class="auth">
@@ -21,6 +23,7 @@
                 <input class="login-form-input" placeholder="password" type="password" name="password" required>
                 <input class="login-form-input" placeholder="email" type="email" name="email" required>
                 <input class="login-form-input" placeholder="confirm password" type="password" name="passwordagain" required><br>
+                <div style="width:40px%"><div class="g-recaptcha" data-sitekey="6Le1uU0bAAAAAOFJgITRHQkbfiahrjVZV-XZ2nYn" style="text-align:center"></div></div><br><br>
                 <button class="login-form-button">signup</button>
               </form>
             </div>

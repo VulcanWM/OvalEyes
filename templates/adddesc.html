@@ -3,7 +3,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
-    <title>VulcanWM - Add Description</title>
+    <title>OvalEyes - Add Description</title>
   </head>
   <body>
     <h2><a href="/">Home</a></h2>
@@ -15,9 +15,7 @@
         </div>
         <div class="login-form-form">
           <form method="POST" action="{{ url_for('adddescfunc') }}">
-            <textarea id="desc" name="desc" rows="8" cols="30" required>
-              {{desc}}
-            </textarea>
+            <textarea id="desc" name="desc" rows="8" cols="30" required>{{desc}}</textarea>
             <br>
             <button class="login-form-button">add description</button>
           </form>

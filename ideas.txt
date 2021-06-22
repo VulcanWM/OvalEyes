@@ -8,6 +8,9 @@ Comment
 Report
 Blocking
 Dming
-Public/Private Posts
-Post Seeing Perms
-Posts on User's Profile
+change email
+change password
+resend email verification
+delete account
+notifications ball thingy (like repl.it)
+added reCAPTCHA!
