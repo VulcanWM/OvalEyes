@@ -457,8 +457,16 @@ def alluserposts(username):
       posts.append(x)
   return posts
 
-def editpost(id, desc):
-  post = getpostid(id)
+def editpost(username, theid, desc):
+  post = getpostid(int(theid))
+  if post == False:
+    return "This is not a real post!"
+  if post['Author'] == username:
+    pass
+  elif username in mods:
+    pass
+  else:
+    return "You cannot edit this post!"
   del post['Description']
   post['Description'] = desc
   delete = {"_id": post['_id']}

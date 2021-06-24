@@ -1,16 +1,12 @@
 Like Posts
 Unlike Posts
-Edit Posts
+Add a way to see all of a user's posts including private
 Mention users in Comments and Posts
 Edit Comments
 Delete Comments
 Comment
 Report
-Blocking
-Dming
 change email
 change password
 resend email verification
 delete account
-notifications ball thingy (like repl.it)
-added reCAPTCHA!

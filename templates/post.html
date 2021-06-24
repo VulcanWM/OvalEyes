@@ -17,6 +17,8 @@
       <h4>Likes: {{post['Likes']}}</h4>
       <h4>View: {{ post['Views'] | length }}</h4>
       {% if perms == True %}
+        <a href="/editpost/{{post['_id']}}">Edit this post</a>
+        <br>
         <a href="/deletepost/{{post['_id']}}">Delete this post</a>
       {% endif %}
       <br>

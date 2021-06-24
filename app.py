@@ -1,8 +1,7 @@
 from flask import Flask, request, render_template, redirect, send_file
 from string import printable
-import random
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, gettop, getnew, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost
 from functions import mods
 import os
 app = Flask(__name__,
@@ -21,7 +20,7 @@ def index():
     if getuser(getcookie("User"))['Verified'] == False:
       return render_template("error.html", error="Verify your account to access everything!")
     else:
-      return render_template("index.html", user=getuser(getcookie("User")))
+      return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifs(getcookie("User"))))
 
 @app.route("/login")
 def loginpage():
@@ -388,3 +387,34 @@ def usersposts(username):
     posts = alluserposts(username)
     return render_template("posts.html", 
     posts=posts, title=f"{username.upper()}'S POSTS", username=username)
+
+@app.route("/editpost/<theid>")
+def editpostpage(theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  if getpostid(int(theid)) == False:
+    return render_template("error.html", error="This post isn't a post!")
+  post = getpostid(int(theid))
+  username = getcookie("User")
+  if post['Author'] == username:
+    pass
+  elif username in mods:
+    pass
+  else:
+    return render_template("error.html", error="You cannot edit this post!")
+  return render_template("editpost.html", desc=post['Description'], theid=theid)
+
+@app.route("/editpostfunc/<theid>", methods=['POST', 'GET'])
+def editpostfunc(theid):
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    if getpostid(int(theid)) == False:
+      return render_template("error.html", error="This post isn't a post!")
+    desc = request.form['desc']
+    func = editpost(getcookie("User"), int(theid), desc)
+    if func == True:
+      return redirect(f"/post/{theid}")
+    else:
+      return render_template("error.html", error=func)
+

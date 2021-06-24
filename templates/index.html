@@ -10,7 +10,11 @@
     <ul>
       <li><a class="active" href="/">Home</a></li>
       <li><a href="/profile/{{user['Username']}}">Your profile</a></li>
-      <li><a href="/notifs">Notifications</a></li>
+      <!-- <li><a href="/notifs">Notifications</a></li> -->
+      <a href="/notifs" class="notification">
+        <span>Notifications</span>
+        <span class="badge">{{number}}</span>
+      </a>
       <li><a href="/adddesc">Add Description</a></li>
       <li><a href="/addpfp">Add Profile Pic</a></li>
       <!-- <li><a href="/topposts">View Top Posts</a></li>
