@@ -1,7 +1,10 @@
-from flask import Flask, request, render_template, redirect, send_file
+from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost
+from werkzeug.utils import secure_filename
+from flask_sqlalchemy import SQLAlchemy
+
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost
 from functions import mods
 import os
 app = Flask(__name__,
@@ -9,8 +12,20 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 app.config['SECRET_KEY'] = os.getenv("secretkey")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///storage.pfps'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+pfps = SQLAlchemy(app)
+
 UPLOAD_FOLDER = './pfps'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+class Img(pfps.Model):
+  id = pfps.Column(pfps.Integer, primary_key=True)
+  img = pfps.Column(pfps.Text, nullable=False)
+  name = pfps.Column(pfps.Text, nullable=False)
+  mimetype = pfps.Column(pfps.Text, nullable=False)
+
+pfps.create_all()
 
 @app.route('/')
 def index():
@@ -75,7 +90,7 @@ def signup():
       addcookie("User", username)
       return render_template("success.html", success="Your account has been created! Check your emails to see a verification email so you can verify your account to do everything!")
     else:
-      return render_template("error.html", error=func)
+      return render_template("error.html", error=f"{func} Account not created! Try again.")
 
 @app.route("/login", methods=['POST', 'GET'])
 def login():
@@ -185,16 +200,17 @@ def addpfp():
         return render_template("error.html", error="Verify your account to access everything!")
       file1 = request.files['image']
       filetype = str(file1.filename).split(".")[-1]
-      if filetype != "jpg":
-        return render_template("error.html", error="Your profile picture file must be a jpg file!")
-      path = os.path.join(app.config['UPLOAD_FOLDER'], getcookie("User")+".jpg")
-      file1.save(path)
+      mimetype = file1.mimetype
+      img = Img(img=file1.read(), mimetype=mimetype, name=getcookie("User"))
+      pfps.session.add(img)
+      pfps.session.commit()
       return redirect("/")
 
 @app.route("/pfps/<username>")
 def pfpuser(username):
   try:
-    return send_file(f"pfps/{username}.png")
+    img = Img.query.filter_by(id=id,name=username).first()
+    return Response(img.img, mimetype=img.mimetype)
   except:
     return send_file("static/unnamed.png")
 
@@ -280,7 +296,7 @@ def post(theid):
     return render_template("error.html", "This post doesn't exist!")
   post = getpostid(int(theid))
   if post['Type'] == 'Public':
-    perms = {"perms": False}
+    perms = {"perms": False, "liked": False}
     if getcookie("User") == False:
       pass
     else:
@@ -291,7 +307,10 @@ def post(theid):
       elif getcookie("User") in mods:
         del perms['perms']
         perms['perms'] = True
-    return render_template("post.html", post=post, perms=perms['perms'])
+      if getcookie("User") in post['LikesPeople']:
+        del perms['liked']
+        perms['liked'] = True
+    return render_template("post.html", post=post, perms=perms['perms'], liked=perms['liked'])
   else:
     if getcookie("User") in mods:
       return render_template("post.html", post=post, perms=True)
@@ -418,3 +437,35 @@ def editpostfunc(theid):
     else:
       return render_template("error.html", error=func)
 
+@app.route("/resendverification")
+def resendverification():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  user = getuser(getcookie("User"))
+  if user['Verified'] == True:
+    return render_template("error.html", error="You have already verified your email!")
+  func = send_mail(user['Email'], user['Username'], user['_id'])
+  if func == True:
+    return render_template("sucesss.html", success="Email verification sent! Check your email.")
+  else:
+    return render_template("error.html", error=func)
+
+@app.route("/likepost/<theid>")
+def likepostpage(theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  func = likepost(theid, getcookie("User"))
+  if func == True:
+    return redirect(f"/post/{theid}")
+  else:
+    return render_template("error.html", error=func)
+
+@app.route("/unlikepost/<theid>")
+def unlikepostpage(theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  func = unlikepost(theid, getcookie("User"))
+  if func == True:
+    return redirect(f"/post/{theid}")
+  else:
+    return render_template("error.html", error=func)

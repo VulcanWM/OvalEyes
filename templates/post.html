@@ -16,6 +16,13 @@
       <h4>Created on: {{post['Created']}}</h4>
       <h4>Likes: {{post['Likes']}}</h4>
       <h4>View: {{ post['Views'] | length }}</h4>
+      {% if liked == True %}
+        <a href="/unlikepost/{{post['_id']}}">Unlike this post</a>
+      {% else %}
+        <a href="/likepost/{{post['_id']}}">Like this post</a>
+      {% endif %}
+      <br>
+      <br>
       {% if perms == True %}
         <a href="/editpost/{{post['_id']}}">Edit this post</a>
         <br>

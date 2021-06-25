@@ -480,3 +480,37 @@ def is_human(captcha_response):
   response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
   response_text = json.loads(response.text)
   return response_text['success']
+
+def likepost(theid, username):
+  post = getpostid(int(theid))
+  if username in post['LikesPeople']:
+    return "You cannot like a post again!"
+  likespeople = post['LikesPeople']
+  likespeople.append(username)
+  del post['LikesPeople']
+  post['LikesPeople'] = likespeople
+  likes = post['Likes']
+  likes = likes + 1
+  del post['Likes']
+  post['Likes'] = likes
+  delete = {"_id": post['_id']}
+  postscol.delete_one(delete)
+  postscol.insert_many([post])
+  return True
+
+def unlikepost(theid, username):
+  post = getpostid(int(theid))
+  if username not in post['LikesPeople']:
+    return "You cannot unlike a post if you haven't liked it!"
+  likespeople = post['LikesPeople']
+  likespeople.remove(username)
+  del post['LikesPeople']
+  post['LikesPeople'] = likespeople
+  likes = post['Likes']
+  likes = likes - 1
+  del post['Likes']
+  post['Likes'] = likes
+  delete = {"_id": post['_id']}
+  postscol.delete_one(delete)
+  postscol.insert_many([post])
+  return True
