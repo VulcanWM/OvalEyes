@@ -22,7 +22,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 class Img(pfps.Model):
   id = pfps.Column(pfps.Integer, primary_key=True)
   img = pfps.Column(pfps.Text, nullable=False)
-  name = pfps.Column(pfps.Text, nullable=False)
   mimetype = pfps.Column(pfps.Text, nullable=False)
 
 pfps.create_all()
@@ -201,7 +200,7 @@ def addpfp():
       file1 = request.files['image']
       filetype = str(file1.filename).split(".")[-1]
       mimetype = file1.mimetype
-      img = Img(img=file1.read(), mimetype=mimetype, name=getcookie("User"))
+      img = Img(img=file1.read(), mimetype=mimetype, id=getuser(getcookie("User"))['_id'])
       pfps.session.add(img)
       pfps.session.commit()
       return redirect("/")
@@ -209,7 +208,8 @@ def addpfp():
 @app.route("/pfps/<username>")
 def pfpuser(username):
   try:
-    img = Img.query.filter_by(id=id,name=username).first()
+    theid = getuser(username)['_id']
+    img = Img.query.filter_by(id=theid).first()
     return Response(img.img, mimetype=img.mimetype)
   except:
     return send_file("static/unnamed.png")

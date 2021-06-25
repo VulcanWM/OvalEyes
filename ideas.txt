@@ -7,4 +7,3 @@ Report
 change email
 change password
 delete account
-saving the pfps with sqlite
