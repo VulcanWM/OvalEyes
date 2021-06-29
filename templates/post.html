@@ -42,6 +42,29 @@
         </div>
       </div>
       <h6>Post Type: {{post['Type']}}</h6>
+      <div class="auth">
+        <div class="login-form-body">
+          <div class="login-form-heading">
+            <h1>Comment</h1>
+            <br>
+          </div>
+          <div class="login-form-form">
+            <form method="POST" action="/commentpage/{{post['_id']}}">
+              <textarea id="comment" name="comment" rows="8" cols="30" required></textarea>
+              <br>
+              <button class="login-form-button">comment</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <h3>Comments</h3>
+      {% if comments == [] %}
+        <p>There are no comments for this post!</p>
+      {% endif %}
+      {% for comment in comments %}
+        <p id="{{comment['_id']}}">Created by {{comment['Author']}} on {{comment['Created']}}</p>
+        <p>{{comment['Comment']}}</p>
+      {% endfor %}
       <script src="{{ url_for('static', filename='modal.js') }}"></script>
     </body>
 </html>

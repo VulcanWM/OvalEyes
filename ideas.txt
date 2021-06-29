@@ -7,3 +7,5 @@ Report
 change email
 change password
 delete account
+add a way to skip directly to a comment
+fix error in addpfp

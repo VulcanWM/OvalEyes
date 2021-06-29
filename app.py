@@ -1,10 +1,8 @@
 from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
-from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
-
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment
 from functions import mods
 import os
 app = Flask(__name__,
@@ -198,7 +196,6 @@ def addpfp():
       if getuser(getcookie("User"))['Verified'] == False:
         return render_template("error.html", error="Verify your account to access everything!")
       file1 = request.files['image']
-      filetype = str(file1.filename).split(".")[-1]
       mimetype = file1.mimetype
       img = Img(img=file1.read(), mimetype=mimetype, id=getuser(getcookie("User"))['_id'])
       pfps.session.add(img)
@@ -295,6 +292,7 @@ def post(theid):
   if getpostid(int(theid)) == False:
     return render_template("error.html", "This post doesn't exist!")
   post = getpostid(int(theid))
+  comments = getcomment(int(theid))
   if post['Type'] == 'Public':
     perms = {"perms": False, "liked": False}
     if getcookie("User") == False:
@@ -310,14 +308,17 @@ def post(theid):
       if getcookie("User") in post['LikesPeople']:
         del perms['liked']
         perms['liked'] = True
-    return render_template("post.html", post=post, perms=perms['perms'], liked=perms['liked'])
+    return render_template("post.html", post=post, perms=perms['perms'], liked=perms['liked'], comments=comments)
   else:
+    if getcookie("User") in post['LikesPeople']:
+      del perms['liked']
+      perms['liked'] = True
     if getcookie("User") in mods:
-      return render_template("post.html", post=post, perms=True)
+      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments)
     elif getcookie("User") == post['Author']:
-      return render_template("post.html", post=post, perms=True)
+      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments)
     elif getcookie("User") in getuser(post['Author'])['Followers']:
-      return render_template("post.html", post=post, perms=False)
+      return render_template("post.html", post=post, perms=False, liked=perms['liked'], comments=comments)
     else:
       return render_template("error.html", error=f"You cannot view this private post unless you are following {post['Author']}!")
 
@@ -469,3 +470,15 @@ def unlikepostpage(theid):
     return redirect(f"/post/{theid}")
   else:
     return render_template("error.html", error=func)
+
+@app.route("/commentpage/<postid>", methods=['POST', 'GET'])
+def commentpage(postid):
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    thecomment = request.form['comment']
+    func = comment(getcookie("User"), int(postid), thecomment)
+    if type(func) is str:
+      return render_template("error.html", error=func)
+    else:
+      return redirect(func[0])

@@ -19,6 +19,7 @@ settingscol = usersdb.Settings
 frcol = usersdb.FollowRequests
 postsdb = client.Posts
 postscol = postsdb.Posts
+commentscol = postsdb.Comments
 mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
   session[key] = value
@@ -514,3 +515,39 @@ def unlikepost(theid, username):
   postscol.delete_one(delete)
   postscol.insert_many([post])
   return True
+
+def comment(username, postid, desc):
+  post = getpostid(int(postid))
+  if post == False:
+    return "This post doesn't exist!"
+  if post['Type'] == "Public":
+    pass
+  else:
+    if post['Author'] == username:
+      pass
+    else:
+      if username in getuser(post['Author'])['Followers']:
+        pass
+      else:
+        return "You don't have permissions to see this post!"
+  document = {
+    "Post": int(postid),
+    "Comment": desc,
+    "Author": username,
+    "Created": str(datetime.datetime.now())
+  }
+  insert = commentscol.insert_one(document)
+  commentid = insert.inserted_id
+  if post['Author'] == username:
+    pass
+  else:
+    addnotif(post['Author'], f"<a href='/post/{str(postid)}#{str(commentid)}'>{username} commented on your post!</a>")
+  return [f'/post/{str(postid)}#{str(commentid)}']
+
+def getcomment(postid):
+  myquery = { "Post": int(postid) }
+  comments = []
+  mydoc = commentscol.find(myquery)
+  for x in mydoc:
+    comments.append(x)
+  return comments

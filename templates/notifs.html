@@ -18,9 +18,9 @@
       {% endif %}
       {% for notif in notifs %}
         {% if notif['Seen'] == False %}
-          <p style="color: #FF6347">{{notif['Notification']}}</p>
+          <p style="color: #FF6347">{{ notif['Notification'] | safe }}</p>
         {% else %}
-          <p style="color: #9ACD32">{{notif['Notification']}}</p>
+          <p style="color: #9ACD32">{{ notif['Notification'] | safe }}</p>
         {% endif %}
       {% endfor %}
     </center>

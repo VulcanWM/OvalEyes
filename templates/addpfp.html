@@ -6,11 +6,12 @@
   <title>OvalEyes - Add Profile Pic</title>
   <h2><a href="/">Home</a></h2>
   <h1>Add Profile Pic</h1>
-  <form method="POST" action="{{ url_for('addpfp') }}" enctype="multipart/form-data">
-    <button>
-    <input type="file" name="image" id="image" required style="display:none">
-    <button onclick="document.querySelector('input').click()" class="login-form-button">Upload</button>
-    <button class="login-form-button">Submit</button>
-  </form>
+  <div class="login-form-body">
+    <form method="POST" action="{{ url_for('addpfp') }}" enctype="multipart/form-data" class="login-form-form">
+      <input type="file" name="image" id="image" required style="display:none">
+      <button onclick="document.querySelector('input').click()" class="login-form-button">Upload</button>
+      <button class="login-form-button">Submit</button>
+    </form>
+  </div>
 </body>
 </html>
