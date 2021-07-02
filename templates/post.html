@@ -64,6 +64,14 @@
       {% for comment in comments %}
         <p id="{{comment['_id']}}">Created by {{comment['Author']}} on {{comment['Created']}}</p>
         <p>{{comment['Comment']}}</p>
+        {% if username != False %}
+          {% if username in mods %}
+            <a href="/deletecomment/{{comment['_id']}}">Delete this comment</a>
+          {% elif comment['Author'] == username %}
+            <a href="/deletecomment/{{comment['_id']}}">Delete this comment</a>
+          {% endif %}
+        {% endif %}
+        <br>
       {% endfor %}
       <script src="{{ url_for('static', filename='modal.js') }}"></script>
     </body>

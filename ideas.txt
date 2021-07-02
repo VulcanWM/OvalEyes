@@ -1,11 +1,7 @@
-Add a way to see all of a user's posts including private
 Mention users in Comments and Posts
 Edit Comments
-Delete Comments
-Comment
 Report
 change email
 change password
 delete account
-add a way to skip directly to a comment
-fix error in addpfp
+home page shows some posts from your followers

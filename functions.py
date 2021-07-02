@@ -7,6 +7,7 @@ import json
 from flask import session
 import os
 import dns
+from bson.objectid import ObjectId
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -538,9 +539,7 @@ def comment(username, postid, desc):
   }
   insert = commentscol.insert_one(document)
   commentid = insert.inserted_id
-  if post['Author'] == username:
-    pass
-  else:
+  if post['Author'] != username:
     addnotif(post['Author'], f"<a href='/post/{str(postid)}#{str(commentid)}'>{username} commented on your post!</a>")
   return [f'/post/{str(postid)}#{str(commentid)}']
 
@@ -551,3 +550,32 @@ def getcomment(postid):
   for x in mydoc:
     comments.append(x)
   return comments
+
+def alluserprivateposts(username):
+  myquery = { "Author":username }
+  mydoc = postscol.find(myquery)
+  posts = []
+  for x in mydoc:
+    if x['Type'] == "Private":
+      posts.append(x)
+  return posts
+
+def delcomment(username, commentid):
+  myquery = { "_id": ObjectId(commentid) }
+  mydoc = commentscol.find(myquery)
+  comment = {"Comment": False}
+  for x in mydoc:
+    del comment['Comment']
+    comment['Comment'] = x
+  if comment['Comment'] == False:
+    return "This is not a real comment!"
+  comment = comment['Comment']
+  if username in mods:
+    pass
+  elif comment['Author'] == username:
+    pass
+  else:
+    return "You can't delete this comment!"
+  delete = {"_id": ObjectId(commentid)}
+  commentscol.delete_one(delete)
+  return True

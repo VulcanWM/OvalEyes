@@ -9,7 +9,8 @@
       <h2><a href="/">Home</a></h2>
       <img src="https://OvalEyes.vulcanwm.repl.co/pfps/{{user['Username']}}" alt="Profile Pic" style="width:75px;height:75px;float:middle">
       <h1>{{user['Username'].upper()}}</h1> 
-      <p>Click <a href="/posts/{{user['Username']}}">here</a> to see all of {{user['Username']}}'s posts</a>
+      <p>Click <a href="/publicposts/{{user['Username']}}">here</a> to see all of {{user['Username']}}'s public posts</p>
+      <p>Click <a href="/privateposts/{{user['Username']}}">here</a> to see all of {{user['Username']}}'s private posts</p>
       {% if user['Description'] == None %}
         <p>{{user['Username']}} has no description!</p>
       {% else %}

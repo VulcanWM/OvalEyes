@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment
 from functions import mods
 import os
 app = Flask(__name__,
@@ -195,6 +195,14 @@ def addpfp():
     else:
       if getuser(getcookie("User"))['Verified'] == False:
         return render_template("error.html", error="Verify your account to access everything!")
+      try:
+        username = getcookie("User")
+        theid = getuser(username)['_id']
+        img = Img.query.filter_by(id=theid).first()
+        pfps.session.delete(img)
+        pfps.session.commit()
+      except:
+        pass
       file1 = request.files['image']
       mimetype = file1.mimetype
       img = Img(img=file1.read(), mimetype=mimetype, id=getuser(getcookie("User"))['_id'])
@@ -308,17 +316,28 @@ def post(theid):
       if getcookie("User") in post['LikesPeople']:
         del perms['liked']
         perms['liked'] = True
-    return render_template("post.html", post=post, perms=perms['perms'], liked=perms['liked'], comments=comments)
+    return render_template("post.html", post=post, perms=perms['perms'], liked=perms['liked'], comments=comments, mods=mods, username=getcookie("User"))
   else:
+    perms = {"perms": False, "liked": False}
+    if getcookie("User") == False:
+      pass
+    else:
+      viewpost(theid, getcookie("User"))
+      if post['Author'] == getcookie("User"):
+        del perms['perms']
+        perms['perms'] = True
+      elif getcookie("User") in mods:
+        del perms['perms']
+        perms['perms'] = True
     if getcookie("User") in post['LikesPeople']:
       del perms['liked']
       perms['liked'] = True
     if getcookie("User") in mods:
-      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments)
+      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments, mods=mods, username=getcookie("User"))
     elif getcookie("User") == post['Author']:
-      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments)
+      return render_template("post.html", post=post, perms=True, liked=perms['liked'], comments=comments, mods=mods, username=getcookie("User"))
     elif getcookie("User") in getuser(post['Author'])['Followers']:
-      return render_template("post.html", post=post, perms=False, liked=perms['liked'], comments=comments)
+      return render_template("post.html", post=post, perms=False, liked=perms['liked'], comments=comments, mods=mods, username=getcookie("User"))
     else:
       return render_template("error.html", error=f"You cannot view this private post unless you are following {post['Author']}!")
 
@@ -398,15 +417,15 @@ def frs():
     else:
       return render_template("frs.html", allfr=allfrs(getcookie("User")))
 
-@app.route("/posts/<username>")
-def usersposts(username):
+@app.route("/publicposts/<username>")
+def publicusersposts(username):
   username = username.lower()
   if getuser(username) == False:
     return render_template("error.html", error=f"{username} isn't a user!")
   else:
     posts = alluserposts(username)
     return render_template("posts.html", 
-    posts=posts, title=f"{username.upper()}'S POSTS", username=username)
+    posts=posts, title=f"{username.upper()}'S PUBLIC POSTS", username=username)
 
 @app.route("/editpost/<theid>")
 def editpostpage(theid):
@@ -482,3 +501,28 @@ def commentpage(postid):
       return render_template("error.html", error=func)
     else:
       return redirect(func[0])
+
+@app.route("/privateposts/<username>")
+def privateuserposts(username):
+  username = username.lower()
+  if getuser(username) == False:
+    return render_template("error.html", error=f"{username} isn't a user!")
+  else:
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    if getcookie("User") not in getuser(username)['Followers'] and getcookie("User") != username:
+      return render_template("error.html", error=f"Follow {username} to view their private posts!")
+    posts = alluserprivateposts(username)
+    return render_template("posts.html", 
+    posts=posts, title=f"{username.upper()}'S PRIVATE POSTS", username=username)
+
+@app.route("/deletecomment/<commentid>")
+def deletecomment(commentid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  username = getcookie("User")
+  func = delcomment(username, commentid)
+  if func == True:
+    return render_template("success.html", success="Comment deleted!")
+  else:
+    return render_template("error.html", error=func)
