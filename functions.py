@@ -579,3 +579,17 @@ def delcomment(username, commentid):
   delete = {"_id": ObjectId(commentid)}
   commentscol.delete_one(delete)
   return True
+
+def changeemail(username, email):
+  user2 = getuser(username)
+  user = user2
+  del user['Email']
+  user['Email'] = email
+  del user['Verified']
+  user['Verified'] = False
+  delete = {"Username": username}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([user])
+  theid = getuser(username)['_id']
+  func = send_mail(email, username, theid)
+  return func

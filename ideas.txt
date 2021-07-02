@@ -1,7 +1,6 @@
 Mention users in Comments and Posts
 Edit Comments
 Report
-change email
 change password
 delete account
 home page shows some posts from your followers
