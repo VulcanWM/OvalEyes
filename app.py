@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid
 from functions import mods
 import os
 app = Flask(__name__,
@@ -341,7 +341,7 @@ def post(theid):
 @app.route("/deletepost/<theid>")
 def deletepost(theid):
   if getpostid(int(theid)) == False:
-    return render_template("error.html", error="This post isn't a post!")
+    return render_template("error.html", error="This isn't a post!")
   title = getpostid(int(theid))['Title']
   if getcookie("User") == False:
     return render_template("error.html", error="You aren't logged in!")
@@ -433,7 +433,7 @@ def editpostpage(theid):
   if getcookie("User") == False:
     return render_template("error.html", error="You are not logged in!")
   if getpostid(int(theid)) == False:
-    return render_template("error.html", error="This post isn't a post!")
+    return render_template("error.html", error="This isn't a post!")
   post = getpostid(int(theid))
   username = getcookie("User")
   if post['Author'] == username:
@@ -450,7 +450,7 @@ def editpostfunc(theid):
     if getcookie("User") == False:
       return render_template("error.html", error="You are not logged in!")
     if getpostid(int(theid)) == False:
-      return render_template("error.html", error="This post isn't a post!")
+      return render_template("error.html", error="This isn't a post!")
     desc = request.form['desc']
     func = editpost(getcookie("User"), int(theid), desc)
     if func == True:
@@ -549,5 +549,36 @@ def changeemailfunc():
     func = changeemail(getcookie("User"), email)
     if func == True:
       return render_template("success.html", success="Email changed! Check your email to verify.")
+    else:
+      return render_template("error.html", error=func)
+
+@app.route("/editcomment/<theid>")
+def editcommentpage(theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  if getcommentid(theid) == False:
+    return render_template("error.html", error="This isn't a comment!")
+  post = getcommentid(theid)
+  username = getcookie("User")
+  if post['Author'] == username:
+    pass
+  elif username in mods:
+    pass
+  else:
+    return render_template("error.html", error="You cannot edit this comment!")
+  return render_template("editcomment.html", desc=post['Comment'], theid=theid)
+
+@app.route("/editcommentfunc/<theid>", methods=['POST', 'GET'])
+def editcommentfunc(theid):
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    if getcommentid(theid) == False:
+      return render_template("error.html", error="This isn't a comment!")
+    desc = request.form['desc']
+    func = editcomment(getcookie("User"), theid, desc)
+    comment = getcommentid(theid)
+    if func == True:
+      return redirect(f"/post/{str(comment['Post'])}#{theid}")
     else:
       return render_template("error.html", error=func)

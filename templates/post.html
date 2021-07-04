@@ -66,8 +66,10 @@
         <p>{{comment['Comment']}}</p>
         {% if username != False %}
           {% if username in mods %}
+            <a href="/editcomment/{{comment['_id']}}">Edit this comment</a>
             <a href="/deletecomment/{{comment['_id']}}">Delete this comment</a>
           {% elif comment['Author'] == username %}
+            <a href="/editcomment/{{comment['_id']}}">Edit this comment</a>
             <a href="/deletecomment/{{comment['_id']}}">Delete this comment</a>
           {% endif %}
         {% endif %}

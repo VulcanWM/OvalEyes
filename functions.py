@@ -560,16 +560,17 @@ def alluserprivateposts(username):
       posts.append(x)
   return posts
 
-def delcomment(username, commentid):
+def getcommentid(commentid):
   myquery = { "_id": ObjectId(commentid) }
   mydoc = commentscol.find(myquery)
-  comment = {"Comment": False}
   for x in mydoc:
-    del comment['Comment']
-    comment['Comment'] = x
-  if comment['Comment'] == False:
+    return x
+  return False
+
+def delcomment(username, commentid):
+  comment = getcommentid(commentid)
+  if comment == False:
     return "This is not a real comment!"
-  comment = comment['Comment']
   if username in mods:
     pass
   elif comment['Author'] == username:
@@ -593,3 +594,20 @@ def changeemail(username, email):
   theid = getuser(username)['_id']
   func = send_mail(email, username, theid)
   return func
+
+def editcomment(username, theid, desc):
+  comment = getcommentid(theid)
+  if comment == False:
+    return "This is not a real comment!"
+  if comment['Author'] == username:
+    pass
+  elif username in mods:
+    pass
+  else:
+    return "You cannot edit this comment!"
+  del comment['Comment']
+  comment['Comment'] = desc
+  delete = {"_id": comment['_id']}
+  commentscol.delete_one(delete)
+  commentscol.insert_many([comment])
+  return True
