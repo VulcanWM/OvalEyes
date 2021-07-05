@@ -21,6 +21,7 @@ frcol = usersdb.FollowRequests
 postsdb = client.Posts
 postscol = postsdb.Posts
 commentscol = postsdb.Comments
+cpcol = postscol.ChangePassword
 mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
   session[key] = value
@@ -611,3 +612,12 @@ def editcomment(username, theid, desc):
   commentscol.delete_one(delete)
   commentscol.insert_many([comment])
   return True
+
+def changepassword(username):
+  pass
+
+def addlog(log):
+  file_object = open('readme.txt', 'a')
+  x = str(datetime.datetime.now())
+  file_object.write(f'\n{x}: {log}')
+  file_object.close()

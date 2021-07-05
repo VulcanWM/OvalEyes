@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog
 from functions import mods
 import os
 app = Flask(__name__,
@@ -78,12 +78,15 @@ def signup():
     if is_human(captcha_response):
       pass
     else:
+      addlog("A bot tried to signup")
       return render_template("error.html", error="No bots allowed!")
     func = makeaccount(username, password, email)
     if func == True or func == None:
+      addlog(f"{username} signed up")
       addcookie("User", username)
       return render_template("success.html", success="Your account has been created! Check your emails to see a verification email so you can verify your account to do everything!")
     else:
+      addlog(f"{func} while trying to create an account")
       return render_template("error.html", error=f"{func} Account not created! Try again.")
 
 @app.route("/login", methods=['POST', 'GET'])
@@ -96,7 +99,9 @@ def login():
       return render_template("error.html", error="That is not a username!")
     password = request.form['password']
     if check_password_hash(gethashpass(username), password) == False:
+      addlog(f"Someone tried to login as {username} but wrong password")
       return render_template("error.html", error="Wrong password!")
+    addlog(f"{username} logged in")
     addcookie("User", username)
     return redirect("/")
 
@@ -104,6 +109,7 @@ def login():
 def verifypage(username, id):
   func = verify(username, id)
   if func == True:
+    addlog(f"{username} has been verified")
     return render_template("success.html", success="Your account has been verified!")
   else:
     return render_template("error.html", error="That is not a verification url!")
@@ -149,6 +155,7 @@ def adddescfunc():
         return render_template("error.html", error="Your description has to be less than 150 characters!")
       func = adddesc(getcookie("User"), desc)
       if func == True:
+        addlog(f"{username} added a description")
         return redirect(f"/profile/{getcookie('User')}")
       else:
         return render_template("error.html", error=func)
@@ -205,6 +212,7 @@ def addpfp():
       img = Img(img=file1.read(), mimetype=mimetype, id=getuser(getcookie("User"))['_id'])
       pfps.session.add(img)
       pfps.session.commit()
+      addlog(f"{username} changed their pfp")
       return redirect("/")
 
 @app.route("/pfps/<username>")
@@ -226,6 +234,7 @@ def followpage(username):
     return render_template("error.html", error=f"{username} isn't verified!")
   func = follow(getcookie("User"), username)
   if func == True:
+    addpfp(f"{getcookie('User')} followed {username}")
     return redirect(f"/profile/{username}")
   else:
     return render_template("error.html", error=func)
@@ -238,6 +247,7 @@ def unfollowpage(username):
     return render_template("error.html", error="Verify your account to access everything!")
   func = unfollow(getcookie("User"), username)
   if func == True:
+    addpfp(f"{getcookie('User')} unfollowed {username}")
     return redirect(f"/profile/{username}")
   else:
     return render_template("error.html", error=func)
@@ -260,6 +270,7 @@ def clearnotifsapp():
   if getuser(getcookie("User")) == False:
     delcookie("hello")
     return redirect("/")
+  addlog(f"{getcookie('User')} cleared their notifs")
   clearnotifs(getcookie("User"))
   return redirect("/notifs")
 
@@ -290,6 +301,7 @@ def makepostfunc():
         return render_template("error.html", error="You cannot have more than 300 letters!")
       makepost(username, title, desc, posttype)
       theid = str(getpost(desc)['_id'])
+      addlog(f"{getcookie('User')} made a post: https://ovaleyes.repl.co/post/{theid}")
       return redirect(f"/post/{theid}")
 
 @app.route("/post/<theid>")
@@ -336,6 +348,7 @@ def post(theid):
     elif getcookie("User") in getuser(post['Author'])['Followers']:
       return render_template("post.html", post=post, perms=False, liked=perms['liked'], comments=comments, mods=mods, username=getcookie("User"))
     else:
+      addlog(f"{getcookie('User')} tried viewing {post['Author']}'s private post: https://ovaleyes.repl.co/post/{theid}")
       return render_template("error.html", error=f"You cannot view this private post unless you are following {post['Author']}!")
 
 @app.route("/deletepost/<theid>")
@@ -343,10 +356,12 @@ def deletepost(theid):
   if getpostid(int(theid)) == False:
     return render_template("error.html", error="This isn't a post!")
   title = getpostid(int(theid))['Title']
+  author = getpostid(int(theid))['Author']
   if getcookie("User") == False:
     return render_template("error.html", error="You aren't logged in!")
   func = delpost(getcookie("User"), int(theid))
   if func == True:
+    addlog(f"{getcookie('User')} deleted the post: {title} by {author}")
     return render_template("success.html", success=f"The post {title} has been deleted!")
   else:
     return render_template("error.html", error=func)
@@ -365,6 +380,7 @@ def settingspublic():
   else:
     func = changepublicsettings(getcookie("User"))
     if func == True:
+      addlog(f"{getcookie('User')} changed their public settings")
       return redirect("/settings")
     else:
       return render_template("error.html", error="Something unexpected happened!")
@@ -376,6 +392,7 @@ def settingemailnotif():
   else:
     func = changeemailsettings(getcookie("User"))
     if func == True:
+      addlog(f"{getcookie('User')} changed their email notif settings")
       return redirect("/settings")
     else:
       return render_template("error.html", error="Something unexpected happened!")
@@ -389,6 +406,7 @@ def acceptfrpage(follower, following):
       return render_template("error.html", error="Verify your account to access everything!")
     func = acceptfr(getcookie("User"), follower, following)
     if func == True:
+      addlog(f"{getcookie('User')} accepted a follow request from {follower}")
       return render_template("success.html", success=f"You accepted a follow request from {follower}!")
       addnotif(follower, f"{following} accepted a follow request from you!")
     else:
@@ -403,6 +421,7 @@ def declinefrpage(follower, following):
       return render_template("error.html", error="Verify your account to access everything!")
     func = declinefr(getcookie("User"), follower, following)
     if func == True:
+      addlog(f"{getcookie('User')} declined a follow request from {follower}")
       return render_template("success.html", success=f"You declined a follow request from {follower}!")
       addnotif(follower, f"{following} declined a follow request from you!")
     else:
@@ -454,6 +473,7 @@ def editpostfunc(theid):
     desc = request.form['desc']
     func = editpost(getcookie("User"), int(theid), desc)
     if func == True:
+      addlog(f"{getcookie('User')} edited the post: https://ovaleyes.repl.co/post/{theid}")
       return redirect(f"/post/{theid}")
     else:
       return render_template("error.html", error=func)
@@ -467,6 +487,7 @@ def resendverification():
     return render_template("error.html", error="You have already verified your email!")
   func = send_mail(user['Email'], user['Username'], user['_id'])
   if func == True:
+    addlog(f"{getcookie('User')} resent their email verification")
     return render_template("sucesss.html", success="Email verification sent! Check your email.")
   else:
     return render_template("error.html", error=func)
@@ -479,6 +500,7 @@ def likepostpage(theid):
     return render_template("error.html", error="Verify your account to access everything!")
   func = likepost(theid, getcookie("User"))
   if func == True:
+    addlog(f"{getcookie('User')} liked the post: https://ovaleyes.repl.co/post/{theid}")
     return redirect(f"/post/{theid}")
   else:
     return render_template("error.html", error=func)
@@ -491,6 +513,7 @@ def unlikepostpage(theid):
     return render_template("error.html", error="Verify your account to access everything!")
   func = unlikepost(theid, getcookie("User"))
   if func == True:
+    addlog(f"{getcookie('User')} unliked the post: https://ovaleyes.repl.co/post/{theid}")
     return redirect(f"/post/{theid}")
   else:
     return render_template("error.html", error=func)
@@ -507,6 +530,7 @@ def commentpage(postid):
     if type(func) is str:
       return render_template("error.html", error=func)
     else:
+      addlog(f"{getcookie('User')} commented on the post: https://ovaleyes.repl.co/post/{postid}")
       return redirect(func[0])
 
 @app.route("/privateposts/<username>")
@@ -518,6 +542,7 @@ def privateuserposts(username):
     if getcookie("User") == False:
       return render_template("error.html", error="You are not logged in!")
     if getcookie("User") not in getuser(username)['Followers'] and getcookie("User") != username:
+      addlog(f"{getcookie('User')} tried viewing {username}'s all private posts'")
       return render_template("error.html", error=f"Follow {username} to view their private posts!")
     posts = alluserprivateposts(username)
     return render_template("posts.html", 
@@ -528,8 +553,10 @@ def deletecomment(commentid):
   if getcookie("User") == False:
     return render_template("error.html", error="You are not logged in!")
   username = getcookie("User")
+  comment = getcommentid(commentid)
   func = delcomment(username, commentid)
   if func == True:
+    addlog(f"{getcookie('User')} deleted {comment['Author']}'s comment on https://ovaleyes.repl.co/post/{str(post['Post'])}'")
     return render_template("success.html", success="Comment deleted!")
   else:
     return render_template("error.html", error=func)
@@ -548,6 +575,7 @@ def changeemailfunc():
     email = request.form['email']
     func = changeemail(getcookie("User"), email)
     if func == True:
+      addlog(f"{getcookie('User')} changed their email")
       return render_template("success.html", success="Email changed! Check your email to verify.")
     else:
       return render_template("error.html", error=func)
@@ -579,6 +607,11 @@ def editcommentfunc(theid):
     func = editcomment(getcookie("User"), theid, desc)
     comment = getcommentid(theid)
     if func == True:
+      addlog(f"{getcookie('User')} edited {comment['Author']}'s comment on https://ovaleyes.repl.co/post/{str(comment['Post'])}#{theid}'")
       return redirect(f"/post/{str(comment['Post'])}#{theid}")
     else:
       return render_template("error.html", error=func)
+
+@app.route("/favicon.ico")
+def favicon():
+  return send_file("static/logo.png")
