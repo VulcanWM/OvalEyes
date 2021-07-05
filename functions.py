@@ -617,7 +617,7 @@ def changepassword(username):
   pass
 
 def addlog(log):
-  file_object = open('readme.txt', 'a')
+  file_object = open('log.txt', 'a')
   x = str(datetime.datetime.now())
   file_object.write(f'\n{x}: {log}')
   file_object.close()
