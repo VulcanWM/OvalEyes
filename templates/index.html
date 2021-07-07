@@ -18,6 +18,9 @@
       <li><a href="/makepost">Make Post</a></li>
       <li><a href="/allfrs">Your Follow Requests</a></li>
       <li><a href="/settings">Settings</a></li>
+      <li><a href="/makereport">Make Report</a></li>
+      {% if username in mods %}
+        <li><a href="/allreports">All Reports</a>
       <div class="topnav-right">
         <img src="https://OvalEyes.VulcanWM.repl.co/pfps/{{user['Username']}}" alt="Profile Pic" style="width:50px;height:50px;float:right">
       </div>

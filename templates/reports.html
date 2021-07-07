@@ -4,17 +4,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="/favicon.ico" />
-    <title>OvalEyes - {{title}}</title>
+    <title>OvalEyes - Reports</title>
   </head>
     <body>
       <h2><a href="/">Home</a></h2>
-      <h1>{{title}}</h1>
-      {% for post in posts %}
-        <button class="post" onclick="window.location.href='/post/{{post['_id']}}'">
-          <h3>{{post['Title']}}</h3>
-          <p>Likes: {{post['Likes']}}</p>
-        </button>
-        <p>Click <a href="/profile/{{username}}">here</a> to go back to {{username}}'s profile</a>
+      <h1>All Reports</h1>
+      {% for report in reports %}
+        <h5>By {{report['Username']}} at {{report['Time']}}</h5>
+        <p>{{report['Report']}}</p>
+        <h4><a href="/deletereport/{{report['_id']}}">Delete this report</a></h4>
         <br>
       {% endfor %}
     </body>

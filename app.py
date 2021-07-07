@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports
 from functions import mods
 import os
 app = Flask(__name__,
@@ -29,7 +29,7 @@ def index():
   if getcookie("User") == False:
     return render_template("login.html")
   else:
-    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifs(getcookie("User"))))
+    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifs(getcookie("User"))), mods=mods)
 
 @app.route("/login")
 def loginpage():
@@ -615,3 +615,41 @@ def editcommentfunc(theid):
 @app.route("/favicon.ico")
 def favicon():
   return send_file("static/logo.png")
+
+@app.route("/makereport")
+def makereportpage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  return render_template("makereport.html")
+
+@app.route("/makereport", methods=['POST', 'GET'])
+def makereportfunc():
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    desc = request.form['desc']
+    func = addreport(getcookie("User"), desc)
+    if func == True:
+      return render_template("success.html", success="Report reported!")
+    else:
+      return render_template("error.html", error=func)
+
+@app.route("/allreports")
+def allreportspage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  if getcookie("User") not in mods:
+    return render_template("error.html", error="You are not a mod!")
+  return render_template("reports.html", reports=allreports())
+
+@app.route("/deletereport/<theid>")
+def deletereportpage(theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  if getcookie("User") not in mods:
+    return render_template("error.html", error="You are not a mod!")
+  func = deletereport(getcookie("User"), theid)
+  if func == True:
+    return redirect("/allreports")
+  else:
+    return render_template("error.html", error=func)

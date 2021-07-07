@@ -21,6 +21,7 @@ frcol = usersdb.FollowRequests
 postsdb = client.Posts
 postscol = postsdb.Posts
 commentscol = postsdb.Comments
+reportscol = usersdb.Reports
 cpcol = postscol.ChangePassword
 mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
@@ -621,3 +622,45 @@ def addlog(log):
   x = str(datetime.datetime.now())
   file_object.write(f'\n{x}: {log}')
   file_object.close()
+
+def addreport(username, report):
+  myquery = {"Username": username}
+  mydoc = reportscol.find(myquery)
+  alldocs = []
+  for x in mydoc:
+    alldocs.append(x)
+  if alldocs == []:
+    pass
+  else:
+    timedoc = alldocs[-1]
+    diff = datetime.datetime.now() - timedoc['Time']
+    diffsecond = diff.total_seconds()
+    if diffsecond < 600:
+      return "You can only report once each 10 minutes!"
+  document = [{
+    "Username": username,
+    "Report": report,
+    "Time": datetime.datetime.now()
+  }]
+  reportscol.insert_many(document)
+  return True
+
+def allreports():
+  reports = []
+  for report in reportscol.find():
+    reports.append(report)
+  return reports
+
+def deletereport(username, theid):
+  if username not in mods:
+    return "You are not a mod!"
+  myquery = {"_id": ObjectId(theid)}
+  mydoc = reportscol.find(myquery)
+  thereports = []
+  for x in mydoc:
+    thereports.append(x)
+  if thereports == []:
+    return "This is not a report!"
+  delete = {"_id": ObjectId(theid)}
+  reportscol.delete_one(delete)
+  return True
