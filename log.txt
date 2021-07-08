@@ -1,3 +1,4 @@
-2021-07-05 19:07:00.335404: vulcanwm made a post: https://ovaleyes.repl.co/post/7420289704
-2021-07-05 19:07:22.501810: vulcanwm edited the post: https://ovaleyes.repl.co/post/7420289704
-2021-07-05 19:07:26.549182: vulcanwm deleted the post: hi by vulcanwm
+2021-07-08 16:59:56.909948: A bot tried to signup
+2021-07-08 17:00:56.147508: A bot tried to signup
+2021-07-08 17:45:31.892695: vulcanwm cleared their notifs
+2021-07-08 17:46:00.714720: vulcanwm cleared their notifs

@@ -614,9 +614,6 @@ def editcomment(username, theid, desc):
   commentscol.insert_many([comment])
   return True
 
-def changepassword(username):
-  pass
-
 def addlog(log):
   file_object = open('log.txt', 'a')
   x = str(datetime.datetime.now())
@@ -663,4 +660,20 @@ def deletereport(username, theid):
     return "This is not a report!"
   delete = {"_id": ObjectId(theid)}
   reportscol.delete_one(delete)
+  return True
+
+def changepassword(username, old_pass, new_pass, new_pass_two):
+  if new_pass != new_pass_two:
+    return "The two passwords aren't the same!"
+  if check_password_hash(gethashpass(username), old_pass) == False:
+    return "Incorrect password!"
+  user2 = getuser(username)
+  user = user2
+  del user['Password']
+  passhash = generate_password_hash(new_pass)
+  user['Password'] = passhash
+  delete = {"_id": user2['_id']}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([user])
+  addnotif(username, "You changed your password!")
   return True

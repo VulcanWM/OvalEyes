@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword
 from functions import mods
 import os
 app = Flask(__name__,
@@ -653,3 +653,23 @@ def deletereportpage(theid):
     return redirect("/allreports")
   else:
     return render_template("error.html", error=func)
+
+@app.route("/changepassword")
+def changepasswordpage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You are not logged in!")
+  return render_template("changepassword.html")
+
+@app.route("/changepassword", methods=['POST', 'GET'])
+def changepasswordfunc():
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You are not logged in!")
+    old_pass = request.form['old_pass']
+    new_pass = request.form['new_pass']
+    new_pass_two = request.form['new_pass_two']
+    func = changepassword(getcookie("User"), old_pass, new_pass, new_pass_two)
+    if func == True:
+      return render_template("success.html", success="Your password has been changed!")
+    else:
+      return render_template("error.html", error=func)
