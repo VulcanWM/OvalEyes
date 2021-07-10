@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword, getnotifsnotseen, forgotpassword
 from functions import mods
 import os
 app = Flask(__name__,
@@ -29,7 +29,7 @@ def index():
   if getcookie("User") == False:
     return render_template("login.html")
   else:
-    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifs(getcookie("User"))), mods=mods)
+    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifsnotseen(getcookie("User"))), mods=mods)
 
 @app.route("/login")
 def loginpage():
@@ -155,7 +155,7 @@ def adddescfunc():
         return render_template("error.html", error="Your description has to be less than 150 characters!")
       func = adddesc(getcookie("User"), desc)
       if func == True:
-        addlog(f"{username} added a description")
+        addlog(f"{getcookie('User')} added a description")
         return redirect(f"/profile/{getcookie('User')}")
       else:
         return render_template("error.html", error=func)
@@ -553,10 +553,11 @@ def deletecomment(commentid):
   if getcookie("User") == False:
     return render_template("error.html", error="You are not logged in!")
   username = getcookie("User")
-  comment = getcommentid(commentid)
+  comment1 = getcommentid(commentid)
   func = delcomment(username, commentid)
   if func == True:
-    addlog(f"{getcookie('User')} deleted {comment['Author']}'s comment on https://ovaleyes.repl.co/post/{str(post['Post'])}'")
+    log = f"{username} deleted {comment1['Author']}'s comment on https://ovaleyes.repl.co/post/{str(comment1['Post'])}"
+    addlog(log)
     return render_template("success.html", success="Comment deleted!")
   else:
     return render_template("error.html", error=func)
@@ -671,5 +672,21 @@ def changepasswordfunc():
     func = changepassword(getcookie("User"), old_pass, new_pass, new_pass_two)
     if func == True:
       return render_template("success.html", success="Your password has been changed!")
+    else:
+      return render_template("error.html", error=func)
+
+
+@app.route("/forgotpassword")
+def forgotpasswordpage():
+  return render_template("forgotpassword.html")
+
+@app.route("/forgotpassword", methods=['POST', 'GET'])
+def forgotpasswordfunc():
+  if request.method == 'POST':
+    username = request.form['username']
+    email = request.form['email']
+    func = forgotpassword(username, email)
+    if func == True:
+      return render_template("success.html", success="Check your email to see your new password!")
     else:
       return render_template("error.html", error=func)

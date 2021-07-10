@@ -7,6 +7,7 @@ import json
 from flask import session
 import os
 import dns
+import string
 from bson.objectid import ObjectId
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -22,7 +23,7 @@ postsdb = client.Posts
 postscol = postsdb.Posts
 commentscol = postsdb.Comments
 reportscol = usersdb.Reports
-cpcol = postscol.ChangePassword
+fpcol = usersdb.ForgotPassword
 mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
   session[key] = value
@@ -56,7 +57,6 @@ def makeaccount(username, password, email):
     "Password": passhash,
     "Likes": 0,
     "Created": str(datetime.datetime.now()),
-    "PFP": None,
     "Email": email,
     "Verified": False,
     "Blocked": [],
@@ -225,6 +225,15 @@ def getnotifs(username):
     notifs.append(x)
   return notifs
 
+def getnotifsnotseen(username):
+  myquery = { "Username": username }
+  mydoc = notifscol.find(myquery)
+  notifs = []
+  for x in mydoc:
+    if x['Seen'] == False:
+      notifs.append(x)
+  return notifs
+
 def addnotif(username, notif):
   notifdoc = {"Username": username, "Notification": notif, "Seen": False}
   notifscol.insert_many([notifdoc])
@@ -328,7 +337,7 @@ def delpost(username, theid):
   elif username in mods:
     delete = {"_id": post["_id"]}
     postscol.delete_one(delete)
-    addnotif(post['Author'], f"Your post has been deleted!")
+    addnotif(post['Author'], f"Your post has been deleted by a mod!")
     return True
   else:
     return "You cannot delete this post!"
@@ -542,7 +551,7 @@ def comment(username, postid, desc):
   insert = commentscol.insert_one(document)
   commentid = insert.inserted_id
   if post['Author'] != username:
-    addnotif(post['Author'], f"<a href='/post/{str(postid)}#{str(commentid)}'>{username} commented on your post!</a>")
+    addnotif(post['Author'], f"<a href='https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}'>{username} commented on your post!</a>")
   return [f'/post/{str(postid)}#{str(commentid)}']
 
 def getcomment(postid):
@@ -666,6 +675,7 @@ def changepassword(username, old_pass, new_pass, new_pass_two):
   if new_pass != new_pass_two:
     return "The two passwords aren't the same!"
   if check_password_hash(gethashpass(username), old_pass) == False:
+    addlog(f"Someone tried to change {username}'s password")
     return "Incorrect password!"
   user2 = getuser(username)
   user = user2
@@ -675,5 +685,75 @@ def changepassword(username, old_pass, new_pass, new_pass_two):
   delete = {"_id": user2['_id']}
   profilescol.delete_one(delete)
   profilescol.insert_many([user])
+  addlog(f"{username} changed their password")
   addnotif(username, "You changed your password!")
+  return True
+
+def forgotpassword(username, email):
+  user = getuser(username)
+  useremail = user['Email']
+  if useremail.lower() != email.lower():
+    addlog(f"Someone tried to change {username}'s password!")
+    return f"That is not {username}'s email!"
+  myquery = {"Username": username}
+  mydoc = fpcol.find(myquery)
+  alldocs = []
+  for x in mydoc:
+    alldocs.append(x)
+  if alldocs == []:
+    pass
+  else:
+    timedoc = alldocs[-1]
+    diff = datetime.datetime.now() - timedoc['Time']
+    diffsecond = diff.total_seconds()
+    if diffsecond < 3600:
+      addlog(f"{username} requested for a new password before an hour")
+      return "You can only request for a new password every hour!"
+  thepassword = ""
+  for i in range(10):
+    thelist = ["number", "letter"]
+    therandom = random.choice(thelist)
+    if therandom == "number":
+      thing = random.randint(0,9)
+    if therandom == "letter":
+      thing = random.choice(string.ascii_letters)
+    thepassword = thepassword + str(thing)
+  context = ssl.create_default_context()
+  MAILPASS = os.getenv("MAIL_PASSWORD")
+  html = f"""
+  <h1>Hello {username}!</h1>
+  <p><strong>You have requested to change your password!</strong></p>
+  <p>Your new password is {thepassword}</p>
+  """
+  message = MIMEMultipart("alternative")
+  message["Subject"] = "OvalEyes New Password"
+  part2 = MIMEText(html, "html")
+  message.attach(part2)
+  try:
+    sendermail = "ovaleyesofficial@gmail.com"
+    password = MAILPASS
+    gmail_server = smtplib.SMTP('smtp.gmail.com', 587)
+    gmail_server.starttls(context=context)
+    gmail_server.login(sendermail, password)
+    message["From"] = sendermail
+    usermail = getuser(username)['Email']
+    message["To"] = usermail
+    gmail_server.sendmail(sendermail, usermail, message.as_string())
+  except Exception as e:
+    print(e)
+    return "New password mail not sent, due to some issues."
+    gmail_server.quit()
+  document = [{
+    "Username": username,
+    "Time": datetime.datetime.now()
+  }]
+  fpcol.insert_many(document)
+  passhash = generate_password_hash(thepassword)
+  user = getuser(username)
+  del user['Password']
+  user['Password'] = passhash
+  delete = {"_id": user['_id']}
+  profilescol.delete_one(delete)
+  profilescol.insert_many([user])
+  addlog(f"{username} has a new password because they requested it")
   return True
