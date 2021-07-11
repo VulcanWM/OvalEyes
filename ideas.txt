@@ -1,3 +1,2 @@
 Mention users in Comments and Posts
-delete account
 home page shows some posts from your followers

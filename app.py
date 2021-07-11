@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword, getnotifsnotseen, forgotpassword
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword, getnotifsnotseen, forgotpassword, deleteaccount, deleteaccountlink
 from functions import mods
 import os
 app = Flask(__name__,
@@ -234,7 +234,7 @@ def followpage(username):
     return render_template("error.html", error=f"{username} isn't verified!")
   func = follow(getcookie("User"), username)
   if func == True:
-    addpfp(f"{getcookie('User')} followed {username}")
+    addlog(f"{getcookie('User')} followed {username}")
     return redirect(f"/profile/{username}")
   else:
     return render_template("error.html", error=func)
@@ -247,7 +247,7 @@ def unfollowpage(username):
     return render_template("error.html", error="Verify your account to access everything!")
   func = unfollow(getcookie("User"), username)
   if func == True:
-    addpfp(f"{getcookie('User')} unfollowed {username}")
+    addlog(f"{getcookie('User')} unfollowed {username}")
     return redirect(f"/profile/{username}")
   else:
     return render_template("error.html", error=func)
@@ -688,5 +688,45 @@ def forgotpasswordfunc():
     func = forgotpassword(username, email)
     if func == True:
       return render_template("success.html", success="Check your email to see your new password!")
+    else:
+      return render_template("error.html", error=func)
+
+@app.route("/deleteaccountfunc/<usernamelink>/<theid>")
+def deleteaccountfunc(usernamelink, theid):
+  if getcookie("User") == False:
+    return render_template("error.html", error="You need to be logged in to delete an account!")
+  func = deleteaccount(getcookie("User"), usernamelink, theid)
+  if func == True:
+    try:
+      username = getcookie("User")
+      theid = getuser(username)['_id']
+      img = Img.query.filter_by(id=theid).first()
+      pfps.session.delete(img)
+      pfps.session.commit()
+    except:
+      pass
+    delcookie("User")
+    return render_template("success.html", success="Your account has been deleted successfully!")
+  else:
+    return render_template("error.html", error=func)
+
+@app.route("/deleteaccount")
+def deleteaccountlinkpage():
+  if getcookie("User") == False:
+    return render_template("error.html", error="You have not logged in!")
+  return render_template("deleteaccount.html")
+
+@app.route("/deleteaccount", methods=['POST', 'GET'])
+def deleteaccountlast():
+  if request.method == 'POST':
+    if getcookie("User") == False:
+      return render_template("error.html", error="You have not logged in!")
+    usernamelink = request.form['usernamelink']
+    email = request.form['email']
+    password = request.form['password']
+    passwordagain = request.form['passwordagain']
+    func = deleteaccountlink(getcookie("User"), usernamelink, email, password, passwordagain)
+    if func == True:
+      return render_template("success.html", success="Check your email to delete your account!")
     else:
       return render_template("error.html", error=func)

@@ -24,6 +24,7 @@ postscol = postsdb.Posts
 commentscol = postsdb.Comments
 reportscol = usersdb.Reports
 fpcol = usersdb.ForgotPassword
+dacol = usersdb.DeleteAccount
 mods = ["vulcanwm", "ruiwenge2"]
 def addcookie(key, value):
   session[key] = value
@@ -757,3 +758,126 @@ def forgotpassword(username, email):
   profilescol.insert_many([user])
   addlog(f"{username} has a new password because they requested it")
   return True
+
+def deleteaccountlink(username, usernamelink, email, password, passwordagain):
+  if username != usernamelink:
+    addlog(f"{username} tried to delete {usernamelink}'s account")
+    return f"{username} and {usernamelink} aren't the same!"
+  if password != passwordagain:
+    addlog(f"Someone tried to delete {username}'s account but the two passwords didn't match")
+    return f"The two passwords don't match!"
+  if getuser(username)['Email'] != email:
+    addlog(f"Someone tried to delete {username}'s account but entered their email wrong")
+    return f"You haven't entered the correct email for {username}!"
+  if check_password_hash(gethashpass(username), password) == False:
+    addlog(f"Someone tried to delete {username}'s account but entered their password wrong")
+    return f"You have entered the wrong password for {username}!"
+  deleteaccountlist = []
+  myquery = {"Username": username}
+  mydoc = dacol.find(myquery)
+  for x in mydoc:
+    deleteaccountlist.append(x)
+  if deleteaccountlist == []:
+    pass
+  else:
+    timedoc = deleteaccountlist[-1]
+    diff = datetime.datetime.now() - timedoc['Time']
+    diffsecond = diff.total_seconds()
+    if diffsecond < 600:
+      return "You can make a delete account request every 10 minutes!"
+  document = [{
+    "Username": username,
+    "Time": datetime.datetime.now()
+  }]
+  dacol.insert_many(document)
+  deleteaccountlist = []
+  myquery = {"Username": username}
+  mydoc = dacol.find(myquery)
+  for x in mydoc:
+    deleteaccountlist.append(x)
+  theid = deleteaccountlist[-1]['_id']
+  context = ssl.create_default_context()
+  MAILPASS = os.getenv("MAIL_PASSWORD")
+  html = f"""
+  <h1>Hello {username}!</h1>
+  <p><strong>You have requested to change your password!</strong></p>
+  <p>Click <a href="https://ovaleyes.repl.co/deleteaccountfunc/{username}/{str(theid)}">here</a> in the next 10 minutes to delete your account</p>
+  """
+  message = MIMEMultipart("alternative")
+  message["Subject"] = "OvalEyes Delete Account Request"
+  part2 = MIMEText(html, "html")
+  message.attach(part2)
+  try:
+    sendermail = "ovaleyesofficial@gmail.com"
+    password = MAILPASS
+    gmail_server = smtplib.SMTP('smtp.gmail.com', 587)
+    gmail_server.starttls(context=context)
+    gmail_server.login(sendermail, password)
+    message["From"] = sendermail
+    usermail = getuser(username)['Email']
+    message["To"] = usermail
+    gmail_server.sendmail(sendermail, usermail, message.as_string())
+    addlog(f"{username} has requested to delete their account")
+    return True
+  except Exception as e:
+    print(e)
+    return "New password mail not sent, due to some issues."
+    gmail_server.quit()
+  
+
+def deleteaccount(username, usernamelink, theid):
+  if username != usernamelink:
+    addlog(f"Someone else tried to delete {usernamelink}'s account")
+    return f"You have to be logged in as {username} to be able to delete {username}'s account!"
+  email = getuser(username)['Email']
+  deleteaccountlist = []
+  mydoc = dacol.find({"_id": ObjectId(theid)})
+  for x in mydoc:
+    deleteaccountlist.append(x)
+  if deleteaccountlist == []:
+    return "This is not a valid id!"
+  timedoc = deleteaccountlist[-1]
+  if username != timedoc['Username']:
+    return f"This is not a link to delete {username}'s account!"
+  diff = datetime.datetime.now() - timedoc['Time']
+  diffsecond = diff.total_seconds()
+  if diffsecond > 600:
+    return "You cannot delete your account with this id as it has been more than 10 minutes since this request was made! Make another one!"
+  dacol.delete_many({"Username": username})
+  notifscol.delete_many({"Username": username})
+  settingscol.delete_many({"Username": username})
+  frcol.delete_many({"Following": username})
+  frcol.delete_many({"Follower": username})
+  fpcol.delete_many({"Username": username})
+  for post in alluserposts(username):
+    commentscol.delete_many({"Post": post['_id']})
+  postscol.delete_many({"Author": username})
+  commentscol.delete_many({"Author": username})
+  delete = {"Username": username}
+  profilescol.delete_one(delete)
+  addlog(f"{username} has deleted their account")
+  context = ssl.create_default_context()
+  MAILPASS = os.getenv("MAIL_PASSWORD")
+  html = f"""
+  <h1>Hello {username}!</h1>
+  <p><strong>Your account has been deleted!</strong></p>
+  """
+  message = MIMEMultipart("alternative")
+  message["Subject"] = "OvalEyes Account Deleted"
+  part2 = MIMEText(html, "html")
+  message.attach(part2)
+  try:
+    sendermail = "ovaleyesofficial@gmail.com"
+    password = MAILPASS
+    gmail_server = smtplib.SMTP('smtp.gmail.com', 587)
+    gmail_server.starttls(context=context)
+    gmail_server.login(sendermail, password)
+    message["From"] = sendermail
+    usermail = email
+    message["To"] = usermail
+    gmail_server.sendmail(sendermail, usermail, message.as_string())
+    return True
+  except Exception as e:
+    print(e)
+    return "New password mail not sent, due to some issues."
+    gmail_server.quit()
