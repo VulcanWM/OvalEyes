@@ -297,11 +297,25 @@ def getpostid(id):
   return False
 
 def makepost(username, title, desc, posttype):
-  id = random_with_N_digits(10)
-  while getuserid(int(id)) == True:
-    id = random_with_N_digits(10)
+  theid = random_with_N_digits(10)
+  while getuserid(int(theid)) == True:
+    theid = random_with_N_digits(10)
+  wordsplit = desc.split()
+  mentions = []
+  for word in wordsplit:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          mentions.append(mention)
+  for mention in mentions:
+    addnotif(mention, f"{username} mentioned you in their <a href='https://ovaleyes.repl.co/post/{str(theid)}'>post</a>")
+  if mentions != []:
+    allmentions = ", ".join(mentions)
+    addlog(f"{username} mentioned: {allmentions} in their post: https://ovaleyes.repl.co/post/{str(theid)}")
+    addnotif(username, f"You mentioned {allmentions} in your <a href='https://ovaleyes.repl.co/post/{str(theid)}'>post</a>")
   document = [{
-    "_id": id,
+    "_id": theid,
     "Author": username,
     "Title": title,
     "Description": desc,
@@ -473,6 +487,33 @@ def alluserposts(username):
 
 def editpost(username, theid, desc):
   post = getpostid(int(theid))
+  wordsplit = desc.split()
+  mentions = []
+  for word in wordsplit:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          mentions.append(mention)
+  oldmentions = []
+  wordsplitold = post['Description'].split()
+  for word in wordsplitold:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          oldmentions.append(mention)
+  for i in oldmentions:
+    try:
+      mentions.remove(i)
+    except:
+      pass
+  for mention in mentions:
+    addnotif(mention, f"{username} mentioned you in their <a href='https://ovaleyes.repl.co/post/{str(theid)}'>post</a>")
+  if mentions != []:
+    allmentions = ", ".join(mentions)
+    addlog(f"{username} mentioned: {allmentions} in their post: https://ovaleyes.repl.co/post/{str(theid)}")
+    addnotif(username, f"You mentioned {allmentions} in your <a href='https://ovaleyes.repl.co/post/{str(theid)}'>post</a>")
   if post == False:
     return "This is not a real post!"
   if post['Author'] == username:
@@ -553,6 +594,20 @@ def comment(username, postid, desc):
   commentid = insert.inserted_id
   if post['Author'] != username:
     addnotif(post['Author'], f"<a href='https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}'>{username} commented on your post!</a>")
+  wordsplit = desc.split()
+  mentions = []
+  for word in wordsplit:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          mentions.append(mention)
+  for mention in mentions:
+    addnotif(mention, f"{username} mentioned you in their <a href='https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}'>comment</a>")
+  if mentions != []:
+    allmentions = ", ".join(mentions)
+    addlog(f"{username} mentioned: {allmentions} in their comment: https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}")
+    addnotif(username, f"You mentioned {allmentions} in your <a href='https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}'>comment</a>")
   return [f'/post/{str(postid)}#{str(commentid)}']
 
 def getcomment(postid):
@@ -617,6 +672,33 @@ def editcomment(username, theid, desc):
     pass
   else:
     return "You cannot edit this comment!"
+  wordsplit = desc.split()
+  mentions = []
+  for word in wordsplit:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          mentions.append(mention)
+  oldmentions = []
+  wordsplitold = comment['Comment'].split()
+  for word in wordsplitold:
+    if word.startswith("@") == True:
+      mention = word.replace("@", "")
+      if getuser(mention) != False:
+        if mention not in mentions:
+          oldmentions.append(mention)
+  for i in oldmentions:
+    try:
+      mentions.remove(i)
+    except:
+      pass
+  for mention in mentions:
+    addnotif(mention, f"{username} mentioned you in their <a href='https://ovaleyes.repl.co/post/{str(comment['Post'])}#{str(theid)}'>comment</a>")
+  if mentions != []:
+    allmentions = ", ".join(mentions)
+    addlog(f"{username} mentioned: {allmentions} in their comment: https://ovaleyes.repl.co/post/{str(postid)}#{str(commentid)}")
+    addnotif(username, f"You mentioned {allmentions} in your <a href='https://ovaleyes.repl.co/post/{str(comment['Post'])}#{str(theid)}'>comment</a>")
   del comment['Comment']
   comment['Comment'] = desc
   delete = {"_id": comment['_id']}

@@ -1,2 +1,4 @@
-Mention users in Comments and Posts
 home page shows some posts from your followers
+credits
+readme
+zone-like phone css with apps and storage
