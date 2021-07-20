@@ -56,7 +56,6 @@ def makeaccount(username, password, email):
     "_id": int(id),
     "Username": username,
     "Password": passhash,
-    "Likes": 0,
     "Created": str(datetime.datetime.now()),
     "Email": email,
     "Verified": False,
@@ -380,7 +379,6 @@ def getsettings(username):
   mydoc = settingscol.find(myquery)
   for x in mydoc:
     return x
-  print("not a document")
   return {"Username": username,"Email": False, "Public": False}
 
 def getsettingstof(username):
@@ -963,3 +961,10 @@ def deleteaccount(username, usernamelink, theid):
     print(e)
     return "New password mail not sent, due to some issues."
     gmail_server.quit()
+
+def topten():
+  topten = []
+  mydoc = postscol.find({"Type": "Public"}).sort("Likes", -1).limit(10)
+  for doc in mydoc:
+    topten.append(doc)
+  return topten

@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, send_file, Response
 from string import printable
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword, getnotifsnotseen, forgotpassword, deleteaccount, deleteaccountlink
+from functions import addcookie, getcookie, delcookie, makeaccount, getuser, gethashpass, verify, checkemailalready, checkusernamealready, adddesc, follow, unfollow, getnotifs, clearnotifs, allseen, makepost, getpost, getpostid, viewpost, delpost, getsettings, changepublicsettings, changeemailsettings, acceptfr, addnotif, declinefr, allfrs, alluserposts, is_human, editpost, send_mail, likepost, unlikepost, getcomment, comment, alluserprivateposts, delcomment, changeemail, editcomment, getcommentid, addlog, addreport, deletereport, allreports, changepassword, getnotifsnotseen, forgotpassword, deleteaccount, deleteaccountlink, topten
 from functions import mods
 import os
 app = Flask(__name__,
@@ -29,7 +29,7 @@ def index():
   if getcookie("User") == False:
     return render_template("login.html")
   else:
-    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifsnotseen(getcookie("User"))), mods=mods)
+    return render_template("index.html", user=getuser(getcookie("User")), number=len(getnotifsnotseen(getcookie("User"))), mods=mods, posts=topten())
 
 @app.route("/login")
 def loginpage():

@@ -1,10 +1,40 @@
 2021-07-10 17:06:31.900123: vulcanwm cleared their notifs
-2021-07-12 15:49:49.990151: vulcanwm made a post: https://ovaleyes.repl.co/post/6237481995
-2021-07-12 15:50:00.051598: vulcanwm cleared their notifs
-2021-07-12 15:50:09.848755: vulcanwm deleted the post: hi by vulcanwm
-2021-07-12 16:09:41.330411: vulcanwm edited the post: https://ovaleyes.repl.co/post/3262815689
-2021-07-12 16:10:02.532536: vulcanwm edited the post: https://ovaleyes.repl.co/post/3262815689
-2021-07-12 16:23:57.338362: vulcanwm edited the post: https://ovaleyes.repl.co/post/3262815689
-2021-07-12 16:24:11.012581: vulcanwm mentioned: vulcanwm in their post: https://ovaleyes.repl.co/post/3262815689
-2021-07-12 16:24:11.756019: vulcanwm edited the post: https://ovaleyes.repl.co/post/3262815689
-2021-07-12 16:24:20.663063: vulcanwm cleared their notifs
+2021-07-13 17:28:33.544779: testqwqw signed up
+2021-07-13 17:30:14.703900: vulcanwm liked the post: https://ovaleyes.repl.co/post/3262815689
+2021-07-13 17:30:23.933772: vulcanwm made a post: https://ovaleyes.repl.co/post/8493351759
+2021-07-13 17:30:28.993324: A bot tried to signup
+2021-07-14 17:06:53.227149: A bot tried to signup
+2021-07-14 17:07:24.769345: helenahu413 signed up
+2021-07-14 17:07:57.048709: helenahu413 has been verified
+2021-07-14 17:08:02.168223: helenahu413 has been verified
+2021-07-14 17:08:33.924462: helenahu413 commented on the post: https://ovaleyes.repl.co/post/3262815689
+2021-07-14 17:09:29.226635: vulcanwm mentioned: helenahu413 in their comment: https://ovaleyes.repl.co/post/3262815689#60ef1a49f873eb5626573414
+2021-07-14 17:09:29.906531: vulcanwm commented on the post: https://ovaleyes.repl.co/post/3262815689
+2021-07-14 17:10:34.708417: helenahu413 mentioned: vulcanwm in their comment: https://ovaleyes.repl.co/post/3262815689#60ef1a8915b1f08443962c75
+2021-07-14 17:10:34.775422: helenahu413 commented on the post: https://ovaleyes.repl.co/post/3262815689
+2021-07-14 17:10:35.262337: vulcanwm cleared their notifs
+2021-07-14 17:10:57.776313: helenahu413 changed their public settings
+2021-07-14 17:11:10.831559: helenahu413 added a description
+2021-07-14 17:12:43.940045: helenahu413 changed their pfp
+2021-07-14 17:12:51.575531: helenahu413 cleared their notifs
+2021-07-14 17:16:53.298216: vulcanwm deleted the post: Test by ruiwenge2
+2021-07-14 17:17:01.331426: vulcanwm deleted the post: test by ruiwenge2
+2021-07-14 17:17:10.935461: vulcanwm deleted the post: test by ruiwenge2
+2021-07-19 16:37:09.587537: Someone tried to change vulcanwm's password
+2021-07-19 16:37:45.749332: vulcanwm has a new password because they requested it
+2021-07-19 16:38:33.920811: Someone tried to change vulcanwm's password
+2021-07-19 16:38:56.400776: vulcanwm changed their password
+2021-07-19 16:39:44.119200: vulcanwm logged in
+2021-07-19 16:40:11.902812: vulcanwm commented on the post: https://ovaleyes.repl.co/post/8879424832
+2021-07-19 16:40:25.003900: vulcanwm cleared their notifs
+2021-07-19 16:40:31.496608: vulcanwm changed their email notif settings
+2021-07-19 16:40:32.797691: vulcanwm changed their email notif settings
+2021-07-19 16:40:34.143937: vulcanwm changed their public settings
+2021-07-19 16:40:35.162556: vulcanwm changed their public settings
+2021-07-19 16:40:50.329427: vulcanwm made a post: https://ovaleyes.repl.co/post/4329415479
+2021-07-19 16:42:36.386117: vulcanwm liked the post: https://ovaleyes.repl.co/post/8879424832
+2021-07-19 17:01:22.448094: vulcanwm logged in
+2021-07-19 17:01:25.754598: vulcanwm logged in
+2021-07-19 18:10:21.316943: vulcanwm logged in
+2021-07-19 18:10:24.220110: vulcanwm logged in
+2021-07-20 14:56:21.973704: vulcanwm changed their pfp

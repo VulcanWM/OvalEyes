@@ -5,10 +5,16 @@
     <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url_for('static', filename='navbar.css') }}" rel="stylesheet" type="text/css" />
     <link rel="shortcut icon" href="/favicon.ico" />
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>OvalEyes</title>
   </head>
   <body>
-    <ul>
+
+
+
+    <!-- <ul>
       <li><a class="active" href="/">Home</a></li>
       <li><a href="/profile/{{user['Username']}}">Your profile</a></li>
       <a href="/notifs" class="notification">
@@ -25,7 +31,68 @@
       <div class="topnav-right">
         <img src="https://OvalEyes.VulcanWM.repl.co/pfps/{{user['Username']}}" alt="Profile Pic" style="width:50px;height:50px;float:right">
       </div>
-    </ul>
+    </ul> -->
+
+
+</head>
+<body>
+
+<div class="topnav" id="myTopnav">
+  <a href="/">Home</a>
+  <a href="/profile/{{user['Username']}}">Your profile</a>
+  <a href="/notifs" class="notification">
+		<span>Notifications</span>
+		<span class="badge">{{number}}
+	</a>
+		<a href="/makepost">Make Post</a>
+		<a href="/allfrs">Your Follow Requests</a>
+		<a href="/settings">Settings</a>
+		<a href="/makereport">Make Report</a>
+		{% if user['Username'] in mods %}
+			<a href="/allreports">All Reports</a>
+		{% endif %}
+		<div class="topnav-right">
+			<img src="https://OvalEyes.VulcanWM.repl.co/pfps/{{user['Username']}}" alt="Profile Pic" style="width:50px;height:50px;float:right">
+		</div> 
+
+		<a href="javascript:void(0);" class="icon" onclick="myFunction()">
+			<i class="fa fa-bars"></i>
+  	</a>
+</div>
+
+
+
+
+
+
     <p>Hi {{user['Username']}}</p>
+    <br>
+    <h3>Top 10 posts</h3>
+
+		<div id="postContainer">
+			{% for post in posts %}
+			
+				<button class="post" onclick="window.location.href='/post/{{post['_id']}}'">
+					<h3>{{post['Title']}}</h3>
+					<p>By {{post['Author']}}</h3>
+					<p>Likes: {{post['Likes']}}</p>
+				</button>
+				<br>
+				
+			{% endfor %}
+			</div>
+		
   </body>
 </html>
+
+
+<script>
+function myFunction() {
+  var x = document.getElementById("myTopnav");
+  if (x.className === "topnav") {
+    x.className += " responsive";
+  } else {
+    x.className = "topnav";
+  }
+}
+</script>

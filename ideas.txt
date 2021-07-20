@@ -1,4 +1,2 @@
-home page shows some posts from your followers
-credits
 readme
-zone-like phone css with apps and storage
+zone-like phone css with apps and storage, use this: https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_slideshow_dots2
