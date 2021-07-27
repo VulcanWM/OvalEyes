@@ -1,4 +1,5 @@
 # OvalEyes
+### A social media website
 Credits:
 - [`@ch1ck3n` on replit](https://repl.it/@ch1ck3n) for the css
 - [`@warrendunlop` on Codepen](https://codepen.io/warrendunlop) for the success page code
