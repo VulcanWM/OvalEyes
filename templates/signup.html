@@ -20,11 +20,17 @@
             <div class="login-form-form">
               <h2>Signup</h2>
               <form method="POST" action="{{ url_for('signup') }}">
-                <input class="login-form-input" placeholder="username" name="username" required>
-                <input class="login-form-input" placeholder="password" type="password" name="password" required>
-                <input class="login-form-input" placeholder="email" type="email" name="email" required>
-                <input class="login-form-input" placeholder="confirm password" type="password" name="passwordagain" required><br>
-                <div style="width:40px%"><div class="g-recaptcha" data-sitekey="6Le1uU0bAAAAAOFJgITRHQkbfiahrjVZV-XZ2nYn" style="text-align:center"></div></div><br><br>
+                <input class="login-form-input" placeholder="username" name="username" autocomplete="off" required>
+                <input class="login-form-input" placeholder="password" type="password" name="password"
+                autocomplete="off" 
+                 required>
+                 <input class="login-form-input" placeholder="confirm password" type="password" name="passwordagain"
+                autocomplete="off"  required>
+                <input class="login-form-input" placeholder="email" type="email" name="email"
+                autocomplete="off"  
+                required>
+                <br>
+                <div style="width:40px%"><div class="g-recaptcha" data-sitekey="6Le1uU0bAAAAAOFJgITRHQkbfiahrjVZV-XZ2nYn" data-theme="dark" style="text-align:center"></div></div><br><br>
                 <button class="login-form-button">signup</button>
               </form>
             </div>

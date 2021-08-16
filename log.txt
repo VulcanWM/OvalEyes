@@ -38,3 +38,58 @@
 2021-07-19 18:10:21.316943: vulcanwm logged in
 2021-07-19 18:10:24.220110: vulcanwm logged in
 2021-07-20 14:56:21.973704: vulcanwm changed their pfp
+2021-07-28 06:42:17.942881: A bot tried to signup
+2021-07-28 06:42:47.436497: user signed up
+2021-07-28 06:56:09.450450: A bot tried to signup
+2021-07-28 16:32:52.605519: candies signed up
+2021-07-28 16:34:12.139833: A bot tried to signup
+2021-07-28 16:34:41.850510: bababooeycrackerman signed up
+2021-07-28 16:34:57.850855: bababooeycrackerman has been verified
+2021-07-28 16:35:19.953861: bababooeycrackerman logged in
+2021-07-28 16:36:35.071722: unicorndev signed up
+2021-07-28 16:37:15.606726: unicorndev has been verified
+2021-07-28 16:37:36.693969: bababooeycrackerman made a post: https://ovaleyes.repl.co/post/1271149040
+2021-07-28 16:39:33.003889: unicorndev changed their public settings
+2021-07-28 16:39:44.471685: unicorndev added a description
+2021-07-28 16:40:45.941654: unicorndev changed their pfp
+2021-07-28 20:36:47.422733: catrekd logged in
+2021-07-29 08:52:09.076345: test signed up
+2021-07-29 10:42:01.537817: lol signed up
+2021-07-29 12:18:17.080774: cacaman signed up
+2021-07-29 12:20:11.769733: cacaman changed their public settings
+2021-07-29 12:21:27.566880: cacaman changed their email notif settings
+2021-07-29 20:51:47.853174: A bot tried to signup
+2021-07-29 20:52:38.702278: jakehu2020 signed up
+2021-07-29 20:53:01.150346: jakehu2020 has been verified
+2021-07-29 20:53:08.723801: jakehu2020 has been verified
+2021-07-29 20:53:26.400811: jakehu2020 has been verified
+2021-07-29 20:54:21.920058: jakehu2020 made a post: https://ovaleyes.repl.co/post/2121834510
+2021-07-29 20:54:54.954677: jakehu2020 changed their email notif settings
+2021-07-29 20:54:56.436978: jakehu2020 changed their email notif settings
+2021-07-29 20:54:59.000979: jakehu2020 changed their public settings
+2021-07-29 20:54:59.991251: jakehu2020 changed their public settings
+2021-07-29 20:55:00.911996: jakehu2020 changed their public settings
+2021-07-29 20:55:01.181098: jakehu2020 changed their public settings
+2021-07-29 22:09:34.829239: silvermoon signed up
+2021-07-29 22:28:51.461909: ruiwenge2 logged in
+2021-07-29 22:29:22.406628: ruiwenge2 commented on the post: https://ovaleyes.repl.co/post/2121834510
+2021-07-29 22:30:23.454876: ruiwenge2 commented on the post: https://ovaleyes.repl.co/post/1271149040
+2021-08-02 17:43:53.549132: martinmcwatters signed up
+2021-08-02 17:44:20.480029: martinmcwatters has been verified
+2021-08-02 17:44:30.947229: martinmcwatters has been verified
+2021-08-02 17:44:56.817734: martinmcwatters commented on the post: https://ovaleyes.repl.co/post/9654981809
+2021-08-02 20:05:50.039762: martinmcwatters made a post: https://ovaleyes.repl.co/post/4022919181
+2021-08-04 20:42:46.790828: dchoudhary.generic signed up
+2021-08-04 20:47:29.421040: ajgeneric signed up
+2021-08-05 01:19:32.066431: john signed up
+2021-08-09 08:11:26.821708: unicorndev changed their pfp
+2021-08-09 08:11:39.197125: unicorndev changed their pfp
+2021-08-11 15:12:38.534301: vulcanwm commented on the post: https://ovaleyes.repl.co/post/2121834510
+2021-08-11 15:13:08.464056: vulcanwm commented on the post: https://ovaleyes.repl.co/post/4022919181
+2021-08-16 11:01:14.171657: kadenblox logged in
+2021-08-16 11:11:01.972764: ovaleyes signed up
+2021-08-16 11:13:02.401076: aa signed up
+2021-08-16 11:15:30.923074: kadenblox logged in
+2021-08-16 11:16:06.107250: kadenblox made a post: https://ovaleyes.repl.co/post/1420793451
+2021-08-16 11:16:13.812401: kadenblox edited the post: https://ovaleyes.repl.co/post/1420793451
+2021-08-16 11:16:24.571078: kadenblox liked the post: https://ovaleyes.repl.co/post/1420793451

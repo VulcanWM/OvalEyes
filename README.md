@@ -6,3 +6,8 @@ Credits:
 - [`@ruiwenge2` on replit](https://repl.it/@ruiwenge2) for working with me, helping me implement a lot of things like adding reCAPTCHA, and giving me a lot of suggestions
 - [`w3schools`](https://www.w3schools.com) for the toggle switch code
 - [`@Bookie0`](https://repl.it/@Bookie0) for the help making the home page responsive and some of the button styling
+- [`@LeviathanCoding`](https://repl.it/@LeviathanCoding) for the code for the pfps
+- [`@KadenBlox`](https://repl.it/@KadenBlox) for the help with the domain
+___
+
+##Click [here](https://ovaleyes.tk) to use it!

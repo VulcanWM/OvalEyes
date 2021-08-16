@@ -1,0 +1,20 @@
+{
+  "files": {
+    "storage.pfps": [
+      {
+        "id": "22f0782f-57f4-43a1-a58e-1516d023e428",
+        "line": 21,
+        "version": 19,
+        "index": 10563
+      }
+    ],
+    "templates/signup.html": [
+      {
+        "id": "6fb454ad-7363-4c7d-a2af-38e592049e26",
+        "line": 23,
+        "version": 325,
+        "index": 979
+      }
+    ]
+  }
+}

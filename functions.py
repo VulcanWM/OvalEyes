@@ -129,7 +129,7 @@ def send_mail(usermail, username, id):
     html = f"""
     <h1>Hello {username}!</h1>
     <p><strong>You have signed up for an account in OvalEyes!</strong></p>
-    <p>Click <a href='https://OvalEyes.VulcanWM.repl.co/verify/{username}/{str(id)}'>here</a> to verify your account</p>
+    <p>Click <a href='https://OvalEyes.repl.co/verify/{username}/{str(id)}'>here</a> to verify your account</p>
     <p>If you didn't make this account, reply back to this email saying this isn't your account and <strong>DO NOT</strong> click on the link or the user who made the account will get verified with your email!</p>
     """
     message = MIMEMultipart("alternative")

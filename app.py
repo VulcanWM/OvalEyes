@@ -49,7 +49,7 @@ def signuppage():
 def signup():
   if request.method == 'POST':
     if getcookie("User") != False:
-      return render_template("error.html", error="You have already logged in!")
+      return render_template("error.html", error="You are already logged in. If you think this is an incorrect error, try clearing your cookies.")
     username = request.form['username']
     if len(username) > 25:
       return render_template("error.html", error="Your username cannot have more than 25 letters!")
