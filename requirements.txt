@@ -6,3 +6,4 @@ numpy
 passlib
 pymongo==3.11.4
 SQLAlchemy==1.4.19
+requests
