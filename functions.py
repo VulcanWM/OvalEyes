@@ -34,8 +34,8 @@ def delcookie(keyname):
 
 def getcookie(key):
   try:
-    if (x := session.get(key)):
-      return x
+    if (session.get(key)):
+      return session.get(key)
     else:
       return False
   except:
