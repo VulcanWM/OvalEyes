@@ -22,7 +22,8 @@ class Img(pfps.Model):
   img = pfps.Column(pfps.Text, nullable=False)
   mimetype = pfps.Column(pfps.Text, nullable=False)
 
-pfps.create_all()
+with app.app_context():
+    pfps.create_all()
 
 @app.route('/')
 def index():
